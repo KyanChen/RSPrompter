@@ -4,7 +4,7 @@ Official Implement of the Paper "Continuous Remote Sensing Image Super-Resolutio
 
 ## Some Information
 
-[Project Page](https://kyanchen.github.io/FunSR/) $\cdot$ [PDF Download](https://arxiv.org/abs/2302.08046)
+[Project Page](https://kyanchen.github.io/FunSR/) $\cdot$ [PDF Download](https://arxiv.org/abs/2302.08046) $\cdot$ [HuggingFace Demo](https://huggingface.co/spaces/KyanChen/FunSR)
 
 🚀️🚀️🚀️ The repository will be orginized later.
 
@@ -51,9 +51,6 @@ Please run **"test_inr_diinn_arbrcan_sadnarc_funsr_overnet.py"**. Config is the 
 ## Result visualization
 
 We provide some visualization tools to show the reconstruction results in our paper. Please refer to the folder **"tools/paper_vis_tools"** for more details.
-
-
-
 
 ```
 @misc{chen2023continuous,
