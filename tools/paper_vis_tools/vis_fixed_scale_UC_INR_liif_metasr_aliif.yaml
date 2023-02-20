@@ -1,0 +1,24 @@
+test_dataset:
+  dataset:
+    name: hr_data_loader
+    args:
+      root_path: /data/kyanchen/datasets/UC/256
+      split_file: data_split/UC_split.json
+#      root_path: /data/kyanchen/datasets/AID
+#      split_file: data_split/AID_split.json
+      split_key: test
+      cache: none
+  wrapper:
+    name: inr_fixed_scale_sr_warp
+    args:
+      scale_ratio: 4
+      patch_size: 48
+      augment: false
+      val_mode: false
+      test_mode: true
+      return_cell: true
+  batch_size: 1
+eval_type: psnr+ssim
+data_norm:
+  inp: {sub: [0.5], div: [0.5]}
+  gt: {sub: [0.5], div: [0.5]}

@@ -1,0 +1,94 @@
+train_dataset:
+  dataset:
+    name: hr_data_loader
+    args:
+#      root_path: /data/kyanchen/datasets/UC/256
+#      split_file: data_split/UC_split.json
+      root_path: /data/kyanchen/datasets/AID
+      split_file: data_split/AID_split.json
+      split_key: train
+      cache: none
+  wrapper:
+    name: cnn_fixed_scale_sr_warp
+    args:
+      scale_ratio: 2
+      patch_size: 48
+      augment: true
+      val_mode: false
+      test_mode: false
+  batch_size: 96
+  num_workers: 8
+
+val_dataset:
+  dataset:
+    name: hr_data_loader
+    args:
+#      root_path: /data/kyanchen/datasets/UC/256
+#      split_file: data_split/UC_split.json
+      root_path: /data/kyanchen/datasets/AID
+      split_file: data_split/AID_split.json
+      split_key: val
+      cache: none
+  wrapper:
+    name: cnn_fixed_scale_sr_warp
+    args:
+      scale_ratio: 2
+      patch_size: 48
+      augment: false
+      val_mode: true
+      test_mode: false
+  batch_size: 32
+  num_workers: 4
+
+data_norm:
+  img: {sub: [0.5], div: [0.5]}
+  gt: {sub: [0.5], div: [0.5]}
+
+#model:
+#  name: TransENet
+#  args:
+#    scale_ratio: 2
+
+#model:
+#  name: SRCNN
+#  args:
+#    scale_ratio: 2
+
+#model:
+#  name: FSRCNN
+#  args:
+#    scale_ratio: 2
+
+#model:
+#  name: LGCNET
+#  args:
+#    scale_ratio: 2
+
+#model:
+#  name: DCM
+#  args:
+#    scale_ratio: 2
+
+model:
+  name: VDSR
+  args:
+    scale_ratio: 2
+
+optimizer:
+  name: adamw
+  args:
+    lr: 0.0001
+
+epoch_max: 1300
+#epoch_max: 2000
+
+lr_scheduler:
+#  name: CosineAnnealingLR
+#  T_max: 300
+#  eta_min: 1.e-6
+  name: MultiStepLR
+  milestones: [1000]
+  gamma: 0.5
+
+epoch_val_interval: 50
+epoch_save_interval: 300

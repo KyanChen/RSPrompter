@@ -1,0 +1,115 @@
+train_dataset:
+  dataset:
+    name: hr_data_loader
+    args:
+      root_path: /data/kyanchen/datasets/UC/256
+      split_file: data_split/UC_split.json
+#      root_path: /data/kyanchen/datasets/AID
+#      split_file: data_split/AID_split.json
+      split_key: train
+      cache: none
+  wrapper:
+    name: inr_diinn_select_scale_sr_warp
+    args:
+      scales: [2, 2.5, 3, 3.5, 4]
+#      scales: [1.5, 1.7, 2, 2.3, 2.5, 2.7, 3, 3.3, 3.5, 3.7, 4, 4.3, 4.5, 4.7, 5]
+      patch_size: 48
+      augment: true
+      val_mode: false
+      test_mode: false
+  batch_size: 8
+  num_workers: 4
+
+val_dataset:
+  dataset:
+    name: hr_data_loader
+    args:
+      root_path: /data/kyanchen/datasets/UC/256
+      split_file: data_split/UC_split.json
+#      root_path: /data/kyanchen/datasets/AID
+#      split_file: data_split/AID_split.json
+      split_key: test
+#      first_k: 128
+      cache: none
+  wrapper:
+    name: cnn_fixed_scale_sr_warp
+    args:
+      scale_ratio: 2
+      patch_size: 48
+      augment: false
+      val_mode: false
+      test_mode: true
+  batch_size: 4
+  num_workers: 4
+
+eval_type: psnr+ssim
+
+data_norm:
+  img: {sub: [0.5], div: [0.5]}
+  gt: {sub: [0.5], div: [0.5]}
+
+model:
+  name: funsr
+  args:
+    encoder_spec:
+      name: edsr-baseline
+#      name: rdn
+#      name: rcan
+      args:
+        no_upsampling: true
+    has_multiscale: true
+    neck:
+      name: transformer_neck
+      args:
+        d_dim: 256
+        downsample: true
+        has_pe: true
+        has_norm: true
+        class_token: true
+        num_encoder_layers: 3
+    decoder:
+      name: sirens
+      args:
+        num_inner_layers: 9
+        is_residual: true
+    global_decoder:
+      name: sirens
+      is_proj: true
+      args:
+        num_inner_layers: 9
+        is_residual: true
+    encoder_rgb: true
+    n_forward_times: 1
+    encode_hr_coord: true
+    has_bn: true
+    encode_scale_ratio: true
+    local_unfold: false
+    weight_gen_func: 'nearest-exact'  # bilinear, nearest-exact,bicubic
+
+optimizer:
+  name: adamw
+  args:
+    lr: 0.0001
+#optimizer:
+#  name: adam
+#  args:
+#    lr: 0.0001
+
+epoch_max: 4000
+
+lr_scheduler:
+#  name: CosineAnnealingLR
+#  T_max: 1500
+#  eta_min: 1.e-7
+  name: CosineAnnealingWarmUpLR
+  epochs: 4000
+  warm_up_epochs: 50
+  eta_min: 1.e-8
+
+#  name: MultiStepLR
+#  milestones: [2000, 3000]
+#  gamma: 0.1
+
+#resume: checkpoints/EXP20221215_00/epoch-last.pth
+epoch_val_interval: 50
+epoch_save_interval: 300
