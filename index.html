@@ -328,14 +328,14 @@
     <tr>
         <td>
             <div style="text-align: center;">
-                <img src="resources/teaser.jpg" width="1000px">
+                <img src="resources/teaser.jpg" width="800px">
             </div>
         </td>
     </tr>
     <tr>
         <td>
             <p style="text-align:justify; text-justify:inter-ideograph;">
-                (a) Depicts the instance segmentation results from point-based prompt, box-based prompt, SAM's ``everything" mode (which segments all objects in the image), and RSPrompter. SAM performs category-agnostic instance segmentation, relying on manually provided prior prompts.
+                (a) Depicts the instance segmentation results from point-based prompt, box-based prompt, SAM's "everything" mode (which segments all objects in the image), and RSPrompter. SAM performs category-agnostic instance segmentation, relying on manually provided prior prompts.
                 (b) Illustrates the segmentation results of point-based prompts from different locations, a two-point based prompt, and a box-based prompt. The type, location, and quantity of prompts heavily influence SAM's results.
             </p>
         </td>
@@ -375,7 +375,7 @@
     <tr>
         <td>
             <div style="text-align: center;">
-                <img src="resources/overall_model.jpg" width="1000px">
+                <img src="resources/model_gallery.jpg" width="1000px">
             </div>
         </td>
     </tr>
@@ -383,8 +383,12 @@
         <td>
             <p style="text-align:justify; text-justify:inter-ideograph;">
                 <br>
-                The outline of the proposed FunSR for continuous magnification remote sensing image SR.
-                The LR image is first converted to multi-scale parameter maps by the functional representor. Then, we design a functional interactor, \textit{i.e.}, a Transformer encoder, to grasp the effective relationship between functions at different pixel-wise locations and contextual levels. It returns a parameter map with global interaction for the local parser and a semantic parameter vector for the global parser via an additional learnable token. Finally, we weight the RGB value produced by the local and global parsers parameterized with the local parameter map and the global parameter vector, respectively, to generate the final RGB value in the HR image.
+                From left to right, the figure illustrates SAM-seg, SAM-cls, SAM-det, and RSPrompter as alternative solutions for applying SAM to remote sensing image instance segmentation tasks.
+                (a) An instance segmentation head is added after SAM's image encoder.
+                (b) SAM's "everything" mode generates masks for all objects in an image, which are subsequently classified into specific categories by a classifier.
+                (c) Object bounding boxes are first produced by an object detector and then used as prior prompts input to SAM to obtain the corresponding masks.
+                (d) The proposed RSPrompter in this paper creates category-relevant prompt embeddings for instant segmentation masks.
+                The snowflake symbol in the figure signifies that the model parameters in this part are kept frozen.
             </p>
         </td>
     </tr>
@@ -401,19 +405,21 @@
         <td>
             <p>
                 <b>
-                    R1: Benchmark on UCMecred
+                    R1: Benchmark on WHU
                 </b>
             </p>
             <p style="text-align:justify; text-justify:inter-ideograph;">
-                The results of FunSR versus other comparison methods on the UCMerced Dataset are shown in the Tab., with the best performance shown by a bold number.
-                We just show the upscale factor of x2.0, x2.5, x3.0, x3.5, x4.0, x6.0, x8.0, and x10.0 for simplicity.
-                FunSR nearly achieves the highest performance in terms of PSNR and SSIM across all backbones and upscale factors.
-                Specifically,
-                FunSR outperforms the state-of-the-art fixed magnification transformer-based SR method TransENet (26.98/0.7755) by 27.11/0.7781, 27.24/0.7799, and 27.29/0.7798 on PSNR and SSIM under x4 magnification utilizing EDSR, RCAN, and RDN image encoders, respectively.
-                FunSR has also shown comparable performance with continuous image SR algorithms over different backbones for in-distribution and out-of-distribution training magnifications.
+                The results of RSPrompter in comparison to other methods on the WHU dataset are presented in Tab., with the best performance highlighted in bold.
+                The task involves performing single-class instance segmentation of buildings in optical RGB band remote sensing images.
+                RSPrompter-query attains the best performance for both box and mask predictions,
+                achieving APbox and APmask values of 70.36/69.21.
+                Specifically, SAM-seg (Mask2Former) surpasses the original Mask2Former (60.40/62.77) with 67.84/66.66 on APbox and APmask, while SAM-seg (Mask R-CNN) exceeds the original Mask R-CNN (56.11/60.75) with 67.15/64.86.
+                Furthermore, both RSPrompter-query and RSPrompter-anchor improve the performance to 70.36/69.21 and 68.06/66.89, respectively, outperforming SAM-det, which carries out detection before segmentation.
+
+                These observations suggest that the learning-to-prompt approach effectively adapts SAM for instance segmentation tasks in optical remote sensing images. Moreover, they demonstrate that the SAM backbone, trained on an extensive dataset, can provide valuable instance segmentation guidance even when it is fully frozen (as seen in SAM-seg).
             </p>
             <div style="text-align: center;">
-                <img src="resources/benchmark_on_UC.png" width="900px">
+                <img src="resources/vis_whu_tab.png" width="900px">
             </div>
         </td>
     </tr>
@@ -424,17 +430,54 @@
             <br>
             <p>
                 <b>
-                    R2: Benchmark on AID
+                    R2: Benchmark on NWPU
                 </b>
             </p>
             <p style="text-align:justify; text-justify:inter-ideograph;">
-                We conduct comparison experiments on the AID dataset to further validate FunSR's effectiveness.
-                Unlike the UCMerced dataset, this one is larger in size and has more scene categories, totaling 30.
-                The following Tab. displays the overall results of various methods on this dataset.
-                It can be seen that, when compared to other approaches, FunSR produces the best results on the majority of magnifications presented across different image encoders.
+                We conduct comparison experiments on the NWPU dataset to further validate RSPrompter's effectiveness.
+                Unlike the WHU dataset, this one is smaller in size but encompasses more instance categories,
+                amounting to 10 classes of remote sensing objects.
+                The experiment remains focused on optical RGB band remote sensing image instance segmentation.
+                Tab. exhibits the overall results of various methods on this dataset.
+
+                It can be observed that RSPrompter-anchor, when compared to other approaches, generates the best results on box and mask predictions (68.54/67.64).
+                In comparison to Mask R-CNN-based methods, single-stage methods display a substantial decline in performance on this dataset,
+                particularly the Transformer-based Mask2Former. This may be because the dataset is relatively small, making it challenging for single-stage methods to achieve adequate generalization across the full data domain,
+                especially for Transformer-based methods that require a large amount of training data.
+                Nonetheless, it is worth noting that the performance of SAM-based SAM-seg (Mask2Former) and RSPrompter-query remains impressive.
+                The performance improves from 29.60/35.02 for Mask2Former to 40.56/45.11 for SAM-seg (Mask2Former) and further to 58.79/65.29 for RSPrompter-query.
+
+                These findings imply that SAM, when trained on a large amount of data, can exhibit significant generalization ability on a small dataset.
+                Even when there are differences in the image domain, SAM's performance can be enhanced through the learning-to-prompt approach.
             </p>
             <div style="text-align: center;">
-                <img src="resources/benchmark_on_AID.png" width="900px">
+                <img src="resources/vis_nwpu_tab.png" width="900px">
+            </div>
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            <br>
+            <p>
+                <b>
+                    R2: Benchmark on SSDD
+                </b>
+            </p>
+            <p style="text-align:justify; text-justify:inter-ideograph;">
+                In this study, we carried out an evaluation of the SSDD dataset to thoroughly assess the capability of SAMpromper in performing remote sensing image instance segmentation tasks.
+                The SSDD dataset is a single-category SAR ship instance segmentation dataset, representing a distinctly different modality compared to the previously mentioned datasets and exhibiting significant variations in training data from SAM.
+                Tab. displays the AP values obtained for different methods on the dataset.
+
+                It can be observed that the SAM-seg (Mask2Former) (49.08/54.03) and SAM-seg (Mask R-CNN) (62.41/59.46) approaches,
+                which are based on the SAM backbone, demonstrate lower performance compared to the original Mask2Former (53.40/56.52) and Mask R-CNN (63.40/60.92).
+                This suggests a considerable disparity between the SAM training image domain and the SAR data domain.
+                Nonetheless, SAM-det achieved a significant performance enhancement (69.42/64.09), indicating that employing a detection-first approach followed by SAM for segmentation can yield high performance in SAM's cross-domain generalization.
+                This is because SAM can provide accurate, category-agnostic, and highly generalized segmentation results with fine-grained intervention prompts.
+                By unlocking the constrained space, RSPrompter-anchor further enhanced the performance to 73.09/72.61, thereby confirming the effectiveness of RSPrompter as well.
+            </p>
+            <div style="text-align: center;">
+                <img src="resources/vis_ssdd_tab.png" width="900px">
             </div>
         </td>
     </tr>
@@ -450,53 +493,31 @@
 <table>
     <tr>
         <td>
-            <br>
-            <p>
-                <b>
-                    R1: Different Upscale Factors
-                </b>
-            </p>
             <p style="text-align:justify; text-justify:inter-ideograph;">
-                The visual comparisons of some image examples upsampling with different scale factors by FunSR-RDN.
-                The LR image is downsampled from the HR reference image with a scale ratio of 1/4.
-                The first two rows are from the UCMerced test set (``tenniscourt99" and ``airplane35"), while the last two are from the AID test set (``bridge_28" and ``denseresidential_20").
-            </p>
-            <div style="text-align: center;">
-                <img src="resources/continuous_results.jpg" width="900px">
-            </div>
-        </td>
-    </tr>
+                To facilitate a more effective visual comparison with other methods,
+                we present a qualitative analysis of the segmentation results obtained from SAM-based techniques and other state-of-the-art instance segmentation approaches.
+                The following figures depict sample segmentation instances from the WHU dataset, NWPU dataset, and SSDD dataset, respectively.
 
-    <tr>
-        <td>
-            <br>
-            <p>
-                <b>
-                    R2: Comparisons on the UCMerced Test Set
-                </b>
+                It can be observed that the proposed RSPrompter yields notable visual improvements in instance segmentation.
+                Compared to alternative methods, the RSPrompter generates superior results, exhibiting sharper edges, more distinct contours, enhanced completeness, and a closer resemblance to the ground-truth references.
             </p>
             <p style="text-align:justify; text-justify:inter-ideograph;">
-                Comparisons on the UCMerced test set with different methods under x4 factor. Image crops are from ``parkinglot17" and ``denseresidential58" respectively. Zoom in for better visualization.
+                <strong>Visualizations of the segmentation results obtained from the WHU dataset</strong>
             </p>
             <div style="text-align: center;">
-                <img src="resources/uc_compare_vis.jpg" width="900px">
+                <img src="resources/vis_whu.png" width="1200px">
             </div>
-        </td>
-    </tr>
-
-    <tr>
-        <td>
-            <br>
-            <p>
-                <b>
-                    R2: Comparisons on the AID Test Set
-                </b>
-            </p>
             <p style="text-align:justify; text-justify:inter-ideograph;">
-                Comparisons on the AID test set with different methods under x4 factor. Image crops are from ``viaduct_271" and ``storagetanks_336" respectively. Zoom in for better visualization.
+                <strong>Visualizations of the segmentation results obtained from the NWPU dataset</strong>
             </p>
             <div style="text-align: center;">
-                <img src="resources/aid_compare_vis.jpg" width="900px">
+                <img src="resources/vis_nwpu.png" width="1200px">
+            </div>
+            <p style="text-align:justify; text-justify:inter-ideograph;">
+                <strong>Visualizations of the segmentation results obtained from the SSDD dataset</strong>
+            </p>
+            <div style="text-align: center;">
+                <img src="resources/vis_ssdd.png" width="1200px">
             </div>
         </td>
     </tr>
