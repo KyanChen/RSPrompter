@@ -1,0 +1,521 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <!--
+    <script src="./resources/jsapi" type="text/javascript"></script>
+    <script type="text/javascript" async>google.load("jquery", "1.3.2");</script>
+   -->
+    <style type="text/css">
+        @font-face {
+            font-family: 'Avenir Book';
+            src: url("./fonts/Avenir_Book.ttf"); /* File to be stored at your site */
+        }
+        body {
+            font-family: "Avenir Book", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+            font-weight:300;
+            font-size:14px;
+            margin-left: auto;
+            margin-right: auto;
+            width: 1200px;
+        }
+        h1 {
+            font-weight:300;
+        }
+        h2 {
+            font-weight:300;
+        }
+
+        p {
+            font-weight:300;
+            line-height: 1.4;
+        }
+
+        code {
+            font-size: 0.8rem;
+            margin: 0 0.2rem;
+            padding: 0.5rem 0.8rem;
+            white-space: nowrap;
+            background: #efefef;
+            border: 1px solid #d3d3d3;
+            color: #000000;
+            border-radius: 3px;
+        }
+
+        pre > code {
+            display: block;
+            white-space: pre;
+            line-height: 1.5;
+            padding: 0;
+            margin: 0;
+        }
+
+        pre.prettyprint > code {
+            border: none;
+        }
+
+
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center
+        }
+        .image {
+            flex-basis: 40%
+        }
+        .text {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .disclaimerbox {
+            background-color: #eee;
+            border: 1px solid #eeeeee;
+            border-radius: 10px ;
+            -moz-border-radius: 10px ;
+            -webkit-border-radius: 10px ;
+            padding: 20px;
+        }
+
+        video.header-vid {
+            height: 140px;
+            border: 1px solid black;
+            border-radius: 10px ;
+            -moz-border-radius: 10px ;
+            -webkit-border-radius: 10px ;
+        }
+
+        img.header-img {
+            height: 140px;
+            border: 1px solid black;
+            border-radius: 10px ;
+            -moz-border-radius: 10px ;
+            -webkit-border-radius: 10px ;
+        }
+
+        img.rounded {
+            border: 0px solid #eeeeee;
+            border-radius: 10px ;
+            -moz-border-radius: 10px ;
+            -webkit-border-radius: 10px ;
+
+        }
+
+        a:link,a:visited
+        {
+            color: #1367a7;
+            text-decoration: none;
+        }
+        a:hover {
+            color: #208799;
+        }
+
+        td.dl-link {
+            height: 160px;
+            text-align: center;
+            font-size: 22px;
+        }
+
+        .layered-paper-big { /* modified from: http://css-tricks.com/snippets/css/layered-paper/ */
+            box-shadow:
+                    0px 0px 1px 1px rgba(0,0,0,0.35), /* The top layer shadow */
+                    5px 5px 0 0px #fff, /* The second layer */
+                    5px 5px 1px 1px rgba(0,0,0,0.35), /* The second layer shadow */
+                    10px 10px 0 0px #fff, /* The third layer */
+                    10px 10px 1px 1px rgba(0,0,0,0.35), /* The third layer shadow */
+                    15px 15px 0 0px #fff, /* The fourth layer */
+                    15px 15px 1px 1px rgba(0,0,0,0.35), /* The fourth layer shadow */
+                    20px 20px 0 0px #fff, /* The fifth layer */
+                    20px 20px 1px 1px rgba(0,0,0,0.35), /* The fifth layer shadow */
+                    25px 25px 0 0px #fff, /* The fifth layer */
+                    25px 25px 1px 1px rgba(0,0,0,0.35); /* The fifth layer shadow */
+            margin-left: 10px;
+            margin-right: 45px;
+        }
+
+
+        .layered-paper { /* modified from: http://css-tricks.com/snippets/css/layered-paper/ */
+            box-shadow:
+                    0px 0px 1px 1px rgba(0,0,0,0.35), /* The top layer shadow */
+                    5px 5px 0 0px #fff, /* The second layer */
+                    5px 5px 1px 1px rgba(0,0,0,0.35), /* The second layer shadow */
+                    10px 10px 0 0px #fff, /* The third layer */
+                    10px 10px 1px 1px rgba(0,0,0,0.35); /* The third layer shadow */
+            margin-top: 5px;
+            margin-left: 10px;
+            margin-right: 30px;
+            margin-bottom: 5px;
+        }
+
+        .vert-cent {
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        hr
+        {
+            border: 0;
+            height: 1px;
+            background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+        }
+    </style>
+    <title>RSPrompter: Learning to Prompt for Remote Sensing Instance Segmentation based on Visual Foundation Model</title>
+</head>
+
+<body>
+<br>
+<span style="font-size:36px">
+    <div style="text-align: center;">
+        RSPrompter: Learning to Prompt for Remote Sensing Instance Segmentation based on Visual Foundation Model
+    </div>
+</span>
+<br>
+<br>
+<br>
+<table align="center" width="1200px">
+    <tr>
+        <td align="center" width="160px">
+            <div style="text-align: center;">
+                <span style="font-size:16px"><a href="https://kyanchen.github.io/">Keyan Chen</a><sup>1,2,3,4</sup></span>
+            </div>
+        </td>
+        <td align="center" width="160px">
+            <div style="text-align: center;">
+                <span style="font-size:16px"><a href="https://github.com/Chen-Yang-Liu">Chenyang Liu</a><sup>1,2,3,4</sup></span>
+            </div>
+        </td>
+
+        <td align="center" width="160px">
+            <div style="text-align: center;">
+                <span style="font-size:16px"><a href="https://github.com/justchenhao">Hao Chen</a><sup>1,2,3,4</sup></span>
+            </div>
+        </td>
+
+        <td align="center" width="180px">
+            <div style="text-align: center;">
+                <span style="font-size:16px"><a href="https://github.com/WindVChen">Haotian Zhang</a><sup>1,2,3,4</sup></span>
+            </div>
+        </td>
+
+        <td align="center" width="180px">
+            <div style="text-align: center;">
+                <span style="font-size:16px"><a href="https://github.com/zmoka-zht">Wenyuan Li</a><sup>1,2,3,4</sup></span>
+            </div>
+        </td>
+
+        <td align="center" width="140px">
+            <div style="text-align: center;">
+                <span style="font-size:16px"><a href="https://zhengxiazou.github.io/">Zhengxia Zou</a><sup>1,4</sup></span>
+            </div>
+        </td>
+
+        <td align="center" width="180px">
+            <div style="text-align: center;">
+                <span style="font-size:16px">
+                    <a href="https://levir.buaa.edu.cn/">Zhenwei Shi</a>
+                    <!--                    <sup><img class="round" style="width:20px" src="./resources/corresponding_fig.png">3</sup>-->
+                    <sup>&#9993 1,2,3,4</sup>
+                </span>
+            </div>
+        </td>
+    </tr>
+</table>
+
+<br>
+
+<table align="center" width="1000px">
+    <tbody>
+    <tr>
+        <td align="center" width="100px">
+            <center>
+                <span style="font-size:16px">Beihang University<sup>1</sup></span>
+            </center>
+        </td>
+
+        <td align="center" width="300px">
+            <center>
+                <span style="font-size:16px">Beijing Key Laboratory of Digital Media<sup>2</sup></span>
+            </center>
+        </td>
+
+        <td align="center" width="400px">
+            <center>
+                <span style="font-size:16px">State Key Laboratory of Virtual Reality Technology and Systems<sup>3</sup></span>
+            </center>
+        </td>
+
+        <td align="center" width="300px">
+            <center>
+                <span style="font-size:16px">Shanghai Artificial Intelligence Laboratory<sup>4</sup></span>
+            </center>
+        </td>
+
+    </tr>
+    </tbody>
+</table>
+
+
+<!--<table align="center" width="700px">-->
+<!--    <tbody>-->
+<!--    <tr>-->
+<!--        <td align="center" width="300px">-->
+<!--            <center>-->
+<!--                <span style="font-size:16px"><sup>&star;</sup>equal contribution</span>-->
+<!--            </center>-->
+<!--        </td>-->
+
+<!--        <td align="center" width="300px">-->
+<!--            <center>-->
+<!--                <span style="font-size:16px"><sup>&#9993</sup>corresponding author</span>-->
+<!--            </center>-->
+<!--        </td>-->
+<!--    </tr>-->
+<!--    </tbody>-->
+<!--</table>-->
+
+<br>
+<table align="center" width="700px">
+    <tbody>
+    <tr>
+        <td align="center" width="200px">
+            <div style="text-align: center;">
+                <span style="font-size:20px">
+                    Code
+                    <a href="https://github.com/KyanChen/RSPrompter">[GitHub]</a>
+                </span>
+            </div>
+        </td>
+
+        <td align="center" width="240px">
+            <div style="text-align: center;">
+                <span style="font-size:20px">
+                    Demo
+                    <a href="https://huggingface.co/spaces/KyanChen/RSPrompter">[HuggingFace]</a>
+                </span>
+            </div>
+        </td>
+
+        <td align="center" width="200px">
+            <div style="text-align: center;">
+                <span style="font-size:20px">
+                    Paper
+                    <a href="https://arxiv.org/abs/2306.16269">[arXiv]</a>
+                </span>
+            </div>
+        </td>
+
+        <td align="center" width="200px">
+            <center>
+                <span style="font-size:20px">
+                    Cite <a href="resources/cite.txt"> [BibTeX]</a>
+                </span>
+            </center>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<hr>
+
+<div style="text-align: center;">
+    <h2>Teaser</h2>
+</div>
+
+
+<p style="text-align:justify; text-justify:inter-ideograph;">
+<table>
+    <tr>
+        <td>
+            <div style="text-align: center;">
+                <img src="resources/teaser.jpg" width="1000px">
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <p style="text-align:justify; text-justify:inter-ideograph;">
+                (a) Depicts the instance segmentation results from point-based prompt, box-based prompt, SAM's ``everything" mode (which segments all objects in the image), and RSPrompter. SAM performs category-agnostic instance segmentation, relying on manually provided prior prompts.
+                (b) Illustrates the segmentation results of point-based prompts from different locations, a two-point based prompt, and a box-based prompt. The type, location, and quantity of prompts heavily influence SAM's results.
+            </p>
+        </td>
+    </tr>
+</table>
+
+
+<br>
+<hr>
+<div style="text-align: center;">
+    <h2>Abstract</h2>
+</div>
+
+<table>
+    <tr>
+        <td>
+            <p style="text-align:justify; text-justify:inter-ideograph;">
+                Leveraging vast training data (SA-1B), the foundation Segment Anything Model (SAM) proposed by Meta AI Research exhibits remarkable generalization and zero-shot capabilities.
+                Nonetheless, as a category-agnostic instance segmentation method, SAM heavily depends on prior manual guidance involving points, boxes, and coarse-grained masks.
+                Additionally, its performance on remote sensing image segmentation tasks has yet to be fully explored and demonstrated.
+                In this paper, we consider designing an automated instance segmentation approach for remote sensing images based on the SAM foundation model, incorporating semantic category information.
+                Inspired by prompt learning, we propose a method to learn the generation of appropriate prompts for SAM input. This enables SAM to produce semantically discernible segmentation results for remote sensing images, which we refer to as RSPrompter.
+                We also suggest several ongoing derivatives for instance segmentation tasks, based on recent developments in the SAM community, and compare their performance with RSPrompter.
+                Extensive experimental results on the WHU building, NWPU VHR-10, and SSDD datasets validate the efficacy of our proposed method.
+            </p>
+        </td>
+    </tr>
+</table>
+
+<br>
+<hr>
+<div style="text-align: center;">
+    <h2>Architecture</h2>
+</div>
+
+<table>
+    <tr>
+        <td>
+            <div style="text-align: center;">
+                <img src="resources/overall_model.jpg" width="1000px">
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <p style="text-align:justify; text-justify:inter-ideograph;">
+                <br>
+                The outline of the proposed FunSR for continuous magnification remote sensing image SR.
+                The LR image is first converted to multi-scale parameter maps by the functional representor. Then, we design a functional interactor, \textit{i.e.}, a Transformer encoder, to grasp the effective relationship between functions at different pixel-wise locations and contextual levels. It returns a parameter map with global interaction for the local parser and a semantic parameter vector for the global parser via an additional learnable token. Finally, we weight the RGB value produced by the local and global parsers parameterized with the local parameter map and the global parameter vector, respectively, to generate the final RGB value in the HR image.
+            </p>
+        </td>
+    </tr>
+</table>
+
+<br>
+<hr>
+<div style="text-align: center;">
+    <h2>Quantitative Results</h2>
+</div>
+
+<table>
+    <tr>
+        <td>
+            <p>
+                <b>
+                    R1: Benchmark on UCMecred
+                </b>
+            </p>
+            <p style="text-align:justify; text-justify:inter-ideograph;">
+                The results of FunSR versus other comparison methods on the UCMerced Dataset are shown in the Tab., with the best performance shown by a bold number.
+                We just show the upscale factor of x2.0, x2.5, x3.0, x3.5, x4.0, x6.0, x8.0, and x10.0 for simplicity.
+                FunSR nearly achieves the highest performance in terms of PSNR and SSIM across all backbones and upscale factors.
+                Specifically,
+                FunSR outperforms the state-of-the-art fixed magnification transformer-based SR method TransENet (26.98/0.7755) by 27.11/0.7781, 27.24/0.7799, and 27.29/0.7798 on PSNR and SSIM under x4 magnification utilizing EDSR, RCAN, and RDN image encoders, respectively.
+                FunSR has also shown comparable performance with continuous image SR algorithms over different backbones for in-distribution and out-of-distribution training magnifications.
+            </p>
+            <div style="text-align: center;">
+                <img src="resources/benchmark_on_UC.png" width="900px">
+            </div>
+        </td>
+    </tr>
+
+
+    <tr>
+        <td>
+            <br>
+            <p>
+                <b>
+                    R2: Benchmark on AID
+                </b>
+            </p>
+            <p style="text-align:justify; text-justify:inter-ideograph;">
+                We conduct comparison experiments on the AID dataset to further validate FunSR's effectiveness.
+                Unlike the UCMerced dataset, this one is larger in size and has more scene categories, totaling 30.
+                The following Tab. displays the overall results of various methods on this dataset.
+                It can be seen that, when compared to other approaches, FunSR produces the best results on the majority of magnifications presented across different image encoders.
+            </p>
+            <div style="text-align: center;">
+                <img src="resources/benchmark_on_AID.png" width="900px">
+            </div>
+        </td>
+    </tr>
+
+</table>
+
+<br>
+<hr>
+<div style="text-align: center;">
+    <h2>Visualizations</h2>
+</div>
+
+<table>
+    <tr>
+        <td>
+            <br>
+            <p>
+                <b>
+                    R1: Different Upscale Factors
+                </b>
+            </p>
+            <p style="text-align:justify; text-justify:inter-ideograph;">
+                The visual comparisons of some image examples upsampling with different scale factors by FunSR-RDN.
+                The LR image is downsampled from the HR reference image with a scale ratio of 1/4.
+                The first two rows are from the UCMerced test set (``tenniscourt99" and ``airplane35"), while the last two are from the AID test set (``bridge_28" and ``denseresidential_20").
+            </p>
+            <div style="text-align: center;">
+                <img src="resources/continuous_results.jpg" width="900px">
+            </div>
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            <br>
+            <p>
+                <b>
+                    R2: Comparisons on the UCMerced Test Set
+                </b>
+            </p>
+            <p style="text-align:justify; text-justify:inter-ideograph;">
+                Comparisons on the UCMerced test set with different methods under x4 factor. Image crops are from ``parkinglot17" and ``denseresidential58" respectively. Zoom in for better visualization.
+            </p>
+            <div style="text-align: center;">
+                <img src="resources/uc_compare_vis.jpg" width="900px">
+            </div>
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            <br>
+            <p>
+                <b>
+                    R2: Comparisons on the AID Test Set
+                </b>
+            </p>
+            <p style="text-align:justify; text-justify:inter-ideograph;">
+                Comparisons on the AID test set with different methods under x4 factor. Image crops are from ``viaduct_271" and ``storagetanks_336" respectively. Zoom in for better visualization.
+            </p>
+            <div style="text-align: center;">
+                <img src="resources/aid_compare_vis.jpg" width="900px">
+            </div>
+        </td>
+    </tr>
+
+</table>
+
+<br>
+<hr>
+
+<div style="text-align: center;">
+    <h2>Acknowledgements</h2>
+</div>
+<p>
+    Based on a template by <a href="http://web.mit.edu/phillipi/">Phillip Isola</a> and <a href="http://richzhang.github.io/">Richard Zhang</a>.
+</p>
+
+<br>
+<br>
+<br>
+
+</body>
+</html>
