@@ -36,13 +36,6 @@ param_scheduler = [
         begin=1,
         end=max_epochs,
     ),
-    # dict(
-    #     type='MultiStepLR',
-    #     begin=1,
-    #     end=max_epochs,
-    #     by_epoch=True,
-    #     milestones=[max_epochs//2, max_epochs*3//4],
-    #     gamma=0.2)
 ]
 
 param_scheduler_callback = dict(
@@ -56,7 +49,6 @@ evaluator_ = dict(
 )
 
 evaluator = dict(
-    # train_evaluator=evaluator_,
     val_evaluator=evaluator_,
 )
 
