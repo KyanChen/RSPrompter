@@ -1,6 +1,5 @@
 from .utils import (convert_to_one_hot, reduce_loss, weight_reduce_loss,
                     weighted_loss)
-from .uncertainrty_regression_loss import UncertaintyRegressionLoss
 
 # __all__ = [
 #     'cross_entropy',
