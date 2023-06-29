@@ -15,15 +15,8 @@ register_all_modules()
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a pl model')
-    # parser.add_argument('--config', default='configs/det/yolov8_official_config.py', help='train config file path')
-    # parser.add_argument('--config', default='configs/det/yolov8_dynamic_sirens.py', help='train config file path')
-    # parser.add_argument('--config', default='configs/seg/seg_just_backbone_with_clip_config.py', help='train config file path')
-    # parser.add_argument('--config', default='configs/seg/seg_just_sam_backbone_config.py', help='train config file path')
-    parser.add_argument('--config', default='configs/ins_seg/seg_instaboost_whu_bs8_config.py',
+    parser.add_argument('--config', default='configs/rsprompter/rsprompter_anchor_whu_config.py',
                         help='train config file path')
-    # parser.add_argument('--config', default='configs/ins_seg/samcls_nwpu_config.py', help='train config file path')
-    # parser.add_argument('--config', default='../configs/seg_mask2former_config.py', help='train config file path')
-    # parser.add_argument('--config', default='configs/motion/motiongpt_certainty_minmax_sirens_config.py', help='train config file path')
     parser.add_argument('--is-debug', default=False, action='store_true', help='debug mode')
     parser.add_argument('--ckpt-path', default=None, help='checkpoint path')
     parser.add_argument('--status', default='fit', help='fit or test', choices=['fit', 'test', 'predict', 'validate'])

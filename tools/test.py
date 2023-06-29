@@ -14,10 +14,9 @@ register_all_modules()
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a pl model')
-    parser.add_argument('--config', default='configs/motion/motiongpt_huggpt_kit_config.py', help='train config file path')
+    parser.add_argument('--config', default='configs/rsprompter/rsprompter_anchor_whu_config.py', help='train config file path')
     parser.add_argument('--status', default='test', help='fit or test', choices=['fit', 'test', 'predict', 'validate'])
-    # parser.add_argument('--ckpt-path', default='results/exp/MotionGPT/tc6u6115/checkpoints/epoch=55-step=88088.ckpt', help='checkpoint path')
-    parser.add_argument('--ckpt-path', default='pretrain/motiongpt/LM_GPT_E20230510_0.pth',
+    parser.add_argument('--ckpt-path', default='pretrain/last.pth',
                         help='checkpoint path')
     parser.add_argument('--work-dir', default=None, help='the dir to save logs and mmpl')
     args = parser.parse_args()

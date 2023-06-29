@@ -14,11 +14,11 @@ register_all_modules()
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a pl model')
-    parser.add_argument('--config', default='configs/seg_test/whu_htc_E20230605_41.py',
+    parser.add_argument('--config', default='configs/rsprompter/rsprompter_anchor_whu_config.py',
                         help='train config file path')
     parser.add_argument('--status', default='predict', help='fit or test', choices=['fit', 'test', 'predict', 'validate'])
     parser.add_argument('--ckpt-path',
-                        default='pretrain/whu/htc_E20230605_41.ckpt',
+                        default='pretrain/whu/last.ckpt',
                         help='checkpoint path')
     parser.add_argument('--work-dir', default=None, help='the dir to save logs and mmpl')
     args = parser.parse_args()
