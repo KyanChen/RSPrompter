@@ -16,7 +16,6 @@ from mmpl.structures import ClsDataSample
 from .base import BaseClassifier
 import lightning.pytorch as pl
 import torch.nn.functional as F
-from mmpl.datasets.data_utils import lafan1_utils_torch
 
 
 @MODELS.register_module()
