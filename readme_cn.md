@@ -6,7 +6,7 @@
 本项目是论文"RSPrompter: Learning to Prompt for Remote Sensing Instance Segmentation based on Visual Foundation Model"的Pytorch实现
 
 
-[项目主页](https://kyanchen.github.io/RSPrompter/) $\cdot$ [PDF下载](https://arxiv.org/abs/2306.16269) $\cdot$ [![论文页面](https://huggingface.co/datasets/huggingface/badges/raw/main/paper-page-sm-dark.svg)](https://huggingface.co/papers/2306.16269) $\cdot$ [![HuggingFace Space](https://huggingface.co/datasets/huggingface/badges/raw/main/open-in-hf-spaces-sm-dark.svg)](https://huggingface.co/spaces/KyanChen/RSPrompter)
+[项目主页](https://kyanchen.github.io/RSPrompter/) $\cdot$ [PDF下载](https://arxiv.org/abs/2306.16269) $\cdot$ [![论文页面](paper-page-sm-dark.svg)](https://huggingface.co/papers/2306.16269) $\cdot$ [![HuggingFace Space](open-in-hf-spaces-sm-dark.svg)](https://huggingface.co/spaces/KyanChen/RSPrompter)
 
 
 ## 0. 环境准备
