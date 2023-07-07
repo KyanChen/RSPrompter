@@ -5,6 +5,7 @@
 
 本项目是论文"RSPrompter: Learning to Prompt for Remote Sensing Instance Segmentation based on Visual Foundation Model"的Pytorch实现
 
+本文方法将会很快集成到MMdetection框架中，请稍后！
 
 [项目主页](https://kyanchen.github.io/RSPrompter/) $\cdot$ [PDF下载](https://arxiv.org/abs/2306.16269) $\cdot$ [![论文页面](paper-page-sm-dark.svg)](https://huggingface.co/papers/2306.16269) $\cdot$ [![HuggingFace Space](open-in-hf-spaces-sm-dark.svg)](https://huggingface.co/spaces/KyanChen/RSPrompter)
 
