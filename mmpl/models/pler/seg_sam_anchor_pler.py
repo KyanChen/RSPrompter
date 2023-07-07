@@ -96,6 +96,18 @@ class SegSAMAnchorPLer(BasePLer):
             x, batch_data_samples, self.backbone)
         return results
 
+    def test_step(self, batch: Any, batch_idx: int, dataloader_idx: int = 0) -> Any:
+        data = self.data_preprocessor(batch, False)
+        batch_inputs = data['inputs']
+        batch_data_samples = data['data_samples']
+
+        x = self.extract_feat(batch_inputs)
+        # x = (
+        # torch.rand(2, 256, 64, 64).to(self.device), [torch.rand(2, 64, 64, 768).to(self.device) for _ in range(12)])
+        results = self.panoptic_head.predict(
+            x, batch_data_samples, self.backbone)
+        self.test_evaluator.update(batch, results)
+
 
 
 
