@@ -1,5 +1,9 @@
 # RSPrompter: Learning to Prompt for Remote Sensing Instance Segmentation based on Visual Foundation Model
 
+<div align="center">
+<img src="https://github.com/KyanChen/RSPrompter/blob/cky/logo.png" width="60%">
+</div>
+
 English | [简体中文](/readme_cn.md)
 
 This is the pytorch implement of our paper "RSPrompter: Learning to Prompt for Remote Sensing Instance Segmentation based on Visual Foundation Model"
