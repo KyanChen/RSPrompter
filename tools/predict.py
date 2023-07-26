@@ -33,7 +33,6 @@ def main():
     elif cfg.trainer_cfg.get('default_root_dir', None) is None:
         # use config filename as default work_dir if cfg.work_dir is None
         cfg.trainer_cfg['default_root_dir'] = osp.join('./work_dirs', osp.splitext(osp.basename(args.config))[0])
-    cfg.trainer_cfg['logger'] = None
     if 'runner_type' not in cfg:
         runner = PLRunner.from_cfg(cfg)
     else:
