@@ -255,8 +255,19 @@ data_parent = '/mnt/search01/dataset/cky_data/NWPU10'
 train_data_prefix = ''
 val_data_prefix = ''
 
+predict_pipeline = [
+    dict(type='mmdet.LoadImageFromFile', backend_args=backend_args),
+    dict(type='mmdet.Resize', scale=image_size),
+    # If you don't have a gt annotation, delete the pipeline
+    # dict(type='mmdet.LoadAnnotations', with_bbox=True, with_mask=True),
+    dict(
+        type='mmdet.PackDetInputs',
+        meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape',
+                   'scale_factor'))
+]
+
 dataset_type = 'NWPUInsSegDataset'
-val_loader = dict(
+predict_loader = dict(
         batch_size=test_batch_size_per_gpu,
         num_workers=test_num_workers,
         persistent_workers=persistent_workers,
@@ -268,10 +279,10 @@ val_loader = dict(
             data_prefix=dict(img_path='positive image set'),
             test_mode=True,
             filter_cfg=dict(filter_empty_gt=True, min_size=32),
-            pipeline=test_pipeline,
+            pipeline=predict_pipeline,
             backend_args=backend_args))
 
 datamodule_cfg = dict(
     type='PLDataModule',
-    predict_loader=val_loader,
+    predict_loader=predict_loader,
 )
