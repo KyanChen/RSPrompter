@@ -115,7 +115,7 @@ class PLRunner:
         trainer_cfg['strategy'] = strategy
 
         self.trainer = pl.Trainer(**trainer_cfg)
-        model_cfg.update({'config_cfg': copy.deepcopy(cfg).to_dict()})
+        model_cfg.update({'config_cfg': ConfigDict(copy.deepcopy(cfg).to_dict())})
         model = self.build_model(model_cfg)
         if cfg.get('load_from', None) is not None:
             self.load_checkpoint(model, cfg['load_from'])
@@ -198,7 +198,7 @@ class PLRunner:
             trainer_cfg=cfg.get('trainer_cfg'),
             model_cfg=cfg['model_cfg'],
             datamodule_cfg=cfg.get('datamodule_cfg'),
-            cfg=cfg
+            cfg=copy.deepcopy(cfg)
         )
 
         return runner
