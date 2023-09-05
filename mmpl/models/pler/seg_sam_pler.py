@@ -195,6 +195,28 @@ class SegSAMPLer(BasePLer):
         results = self.add_pred_to_datasample(batch_data_samples, results_list)
         return results
 
+    def test_step(self, batch, batch_idx):
+        data = self.data_preprocessor(batch, False)
+        batch_inputs = data['inputs']
+        batch_data_samples = data['data_samples']
+
+        feats = self.extract_feat(batch_inputs)
+        if hasattr(self, 'sam_neck'):
+            feats = self.sam_neck(feats)
+            mask_cls_results, mask_pred_results = self.panoptic_head.predict(
+                feats, batch_data_samples)
+        else:
+            mask_cls_results, mask_pred_results = self.panoptic_head.predict(
+                feats, batch_data_samples, self.backbone)
+
+        results_list = self.panoptic_fusion_head.predict(
+            mask_cls_results,
+            mask_pred_results,
+            batch_data_samples,
+            rescale=True)
+        results = self.add_pred_to_datasample(batch_data_samples, results_list)
+        self.test_evaluator.update(batch, results)
+
 
 
 
