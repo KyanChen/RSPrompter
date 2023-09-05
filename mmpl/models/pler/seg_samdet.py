@@ -95,6 +95,52 @@ class SegSAMDetPLer(BasePLer):
             data_sample.pred_instances.masks = im_mask
 
         self.val_evaluator.update(batch, batch_data_samples)
+    
+    def test_step(self, batch, batch_idx):
+        data = self.whole_model.data_preprocessor(batch, False)
+        batch_data_samples = self.whole_model._run_forward(data, mode='predict')  # type: ignore
+
+        batch_inputs = data['inputs']
+        feat, inter_features = self.backbone.image_encoder(batch_inputs)
+        # import ipdb; ipdb.set_trace()
+        for idx, data_sample in enumerate(batch_data_samples):
+            bboxes = data_sample.pred_instances['bboxes']
+            ori_img_shape = data_sample.ori_shape
+            if len(bboxes) == 0:
+                im_mask = torch.zeros(
+                    0,
+                    ori_img_shape[0],
+                    ori_img_shape[1],
+                    device=self.device,
+                    dtype=torch.bool)
+            else:
+                scale_factor = data_sample.scale_factor
+                repeat_num = int(bboxes.size(-1) / 2)
+                scale_factor = bboxes.new_tensor(scale_factor).repeat((1, repeat_num))
+                bboxes = bboxes * scale_factor
+
+                # Embed prompts
+                sparse_embeddings, dense_embeddings = self.backbone.prompt_encoder(
+                    points=None,
+                    boxes=bboxes,
+                    masks=None,
+                )
+
+                # Predict masks
+                low_res_masks, iou_predictions = self.backbone.mask_decoder(
+                    image_embeddings=feat[idx:idx + 1],
+                    image_pe=self.backbone.prompt_encoder.get_dense_pe(),
+                    sparse_prompt_embeddings=sparse_embeddings,
+                    dense_prompt_embeddings=dense_embeddings,
+                    multimask_output=False,
+                )
+                # Upscale the masks to the original image resolution
+                im_mask = F.interpolate(low_res_masks, ori_img_shape, mode="bilinear", align_corners=False)
+                im_mask = im_mask > 0
+                im_mask = im_mask.squeeze(1)
+            data_sample.pred_instances.masks = im_mask
+
+        self.test_evaluator.update(batch, batch_data_samples)
 
     def training_step(self, batch, batch_idx):
         data = self.whole_model.data_preprocessor(batch, True)
