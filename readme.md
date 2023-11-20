@@ -1,6 +1,6 @@
 # RSPrompter: Learning to Prompt for Remote Sensing Instance Segmentation based on Visual Foundation Model
 
-** We will update a new version in 1 week! **
+**We will update a new version in 1 week!**
 
 <div align="center">
 <img src="https://github.com/KyanChen/RSPrompter/blob/cky/logo.png" width="60%">
