@@ -12,7 +12,7 @@ This is the pytorch implement of our paper "RSPrompter: Learning to Prompt for R
 
 This method will be integrated into the MMdetection framework soon, please stand by. 
 
-If this work is helpful to you, please **STAR**  this repository.
+If this work is helpful to you, please :star:  this repository.
 
 [Project Page](https://kyanchen.github.io/RSPrompter/) $\cdot$ [PDF Download](https://arxiv.org/abs/2306.16269) $\cdot$ [![Paper page](paper-page-sm-dark.svg)](https://huggingface.co/papers/2306.16269) $\cdot$ [![Open in Spaces](open-in-hf-spaces-sm-dark.svg)](https://huggingface.co/spaces/KyanChen/RSPrompter)
 
