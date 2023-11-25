@@ -67,6 +67,7 @@ If you find this project helpful, please give us a star ⭐️, your support is 
 ## TODO
 
 - [X] Consistent API interface and usage method with MMDetection
+- [ ] Reduce the memory usage of the model while ensuring performance by reducing the image input and combining with the large model fine-tuning technology
 - [ ] Dynamically variable image size input
 - [ ] Efficient fine-tuning method in the model
 - [ ] Add SAM-cls model
