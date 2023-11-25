@@ -69,6 +69,7 @@ If you find this project helpful, please give us a star ⭐️, your support is 
 - [X] Consistent API interface and usage method with MMDetection
 - [ ] Dynamically variable image size input
 - [ ] Efficient fine-tuning method in the model
+- [ ] Add SAM-cls model
 
 ## Table of Contents
 
