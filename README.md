@@ -147,11 +147,11 @@ cd RSPrompter
 
 ## Dataset Preparation
 
+<details>
+
 ### Basic Instance Segmentation Dataset
 
 We provide the instance segmentation dataset preparation method used in the paper.
-
-<details>
 
 #### WHU Building Dataset
 
