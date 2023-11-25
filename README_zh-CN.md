@@ -1,10 +1,9 @@
-<p align="center">
-    <b>
-        <font color="blue" size="6">
-            RSPrompter: Learning to Prompt for Remote Sensing Instance Segmentation based on Visual Foundation Model
-        </font>
-    </b>
-</p>
+<div align="center">
+    <h2>
+        RSPrompter: Learning to Prompt for Remote Sensing Instance Segmentation based on Visual Foundation Model
+    </h2>
+</div>
+<br>
 
 <div align="center">
   <img src="resources/RSPrompter.png" width="800"/>
