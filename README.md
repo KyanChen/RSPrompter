@@ -1,8 +1,8 @@
 <p align="center">
     <b>
-        <font color="blue" size="12">
+        <span style="font-size: 32px; ">
             RSPrompter: Learning to Prompt for Remote Sensing Instance Segmentation based on Visual Foundation Model
-        </font>
+        </span>
     </b>
 </p>
 
