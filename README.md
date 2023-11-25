@@ -161,15 +161,15 @@ We provide the instance segmentation dataset preparation method used in the pape
 
 #### NWPU VHR-10 Dataset
 
-- Image download address: [NWPU VHR-10 Dataset](https://aistudio.baidu.com/datasetdetail/52812)。
+- Image download address: [NWPU VHR-10 Dataset](https://aistudio.baidu.com/datasetdetail/52812).
 
-- Instance label download address: [NWPU VHR-10 Instance Label](https://github.com/chaozhong2010/VHR-10_dataset_coco)。
+- Instance label download address: [NWPU VHR-10 Instance Label](https://github.com/chaozhong2010/VHR-10_dataset_coco).
 
 #### SSDD Dataset
 
-- Image download address: [SSDD Dataset](https://aistudio.baidu.com/datasetdetail/56503)。
+- Image download address: [SSDD Dataset](https://aistudio.baidu.com/datasetdetail/56503).
 
-- Instance label download address: [SSDD Instance Label](https://github.com/chaozhong2010/VHR-10_dataset_coco)。
+- Instance label download address: [SSDD Instance Label](https://github.com/chaozhong2010/VHR-10_dataset_coco).
 
 **Note**: In the `data` folder of this project, we provide the instance labels of the above datasets, which you can use directly.
 
