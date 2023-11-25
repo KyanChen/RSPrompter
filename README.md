@@ -1,7 +1,7 @@
 <div align="center">
-    <h1>
+    <h2>
         RSPrompter: Learning to Prompt for Remote Sensing Instance Segmentation based on Visual Foundation Model
-    </h1>
+    </h2>
 </div>
 <br>
 
