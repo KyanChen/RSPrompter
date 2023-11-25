@@ -215,7 +215,7 @@ We provide the configuration files of the SAM-based models used in the paper, wh
 - `num_classes`: The number of categories in the dataset, **which needs to be modified according to the number of categories in the dataset**.
 - `prompt_shape`: The shape of the Prompt, the first parameter represents $N_p$, and the second parameter represents $K_p$, which generally does not need to be modified.
 - `hf_sam_pretrain_name`: The name of the SAM model on HuggingFace Spaces, which generally does not need to be modified.
-- `hf_sam_pretrain_ckpt_path`: The checkpoint path of the SAM model on HuggingFace Spaces, **which needs to be modified to your own path**, you can use the [download script](./tools/rsprompter/download_hf_sam_pretrain_ckpt.py) to download.
+- `hf_sam_pretrain_ckpt_path`: The checkpoint path of the SAM model on HuggingFace Spaces, **which needs to be modified to your own path**, you can use the [download script](https://github.com/KyanChen/RSPrompter/blob/release/tools/rsprompter/download_hf_sam_pretrain_ckpt.py) to download.
 - `model-decoder_freeze`: Whether to freeze the parameters of the SAM decoder, which generally does not need to be modified.
 - `model-neck-feature_aggregator-hidden_channels`: The hidden channel number of the feature aggregator, which generally does not need to be modified.
 - `model-neck-feature_aggregator-select_layers`: The number of layers selected by the feature aggregator, **which needs to be modified according to the selected SAM backbone type**.
