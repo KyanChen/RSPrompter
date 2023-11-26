@@ -124,7 +124,7 @@ param_scheduler = [
     )
 ]
 
-# runner_type = 'Runner'
+#### DeepSpeed Configs
 runner_type = 'FlexibleRunner'
 strategy = dict(
     type='DeepSpeedStrategy',
@@ -158,6 +158,18 @@ optim_wrapper = dict(
         weight_decay=0.05
     )
 )
+
+# #### AMP training config
+# runner_type = 'Runner'
+# optim_wrapper = dict(
+#     type='AmpOptimWrapper',
+#     dtype='float16',
+#     optimizer=dict(
+#         type='AdamW',
+#         lr=base_lr,
+#         weight_decay=0.05)
+# )
+
 
 
 
