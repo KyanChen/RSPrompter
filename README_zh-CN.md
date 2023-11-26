@@ -333,14 +333,16 @@ python zero_to_fp32.py . $SAVE_CHECKPOINT_NAME -t $CHECKPOINT_DIR  # $SAVE_CHECK
 
 这里我们列出了使用不同模型的资源消耗情况，供您参考。
 
-|         模型名称          |  骨干网络类型  | 图像尺寸 |           GPU            | Batch Size |       加速策略       | 单卡显存占用  |
-|:---------------------:|:--------:| :------: |:------------------------:|:----------:|:----------------:|:-------:|
-| SAM-seg (Mask R-CNN)  | ViT-B/16 | 1024x1024 |       1x RTX 4090        |     8      |     AMP FP16     | 19.4 GB |
-| SAM-seg (Mask2Former) | ViT-B/16 | 1024x1024 |       1x RTX 4090        |     8      |     AMP FP16     | 21.5 GB |
-|        SAM-det        | ResNet50 | 1024x1024 |       1x RTX 4090        |     8      |       FP32       | 16.6 GB |
-|   RSPrompter-anchor   | ViT-B/16 | 1024x1024 |       1x RTX 4090        |     2      |     AMP FP16     | 20.9 GB |
-|   RSPrompter-query    | ViT-B/16 | 1024x1024 |       1x RTX 4090        |     1      |     AMP FP16     |   OOM   |
-|   RSPrompter-anchor   | ViT-B/16 | 1024x1024 |       8x RTX 4090        |     4      | DeepSpeed ZeRO-2 | 2.4 GB  |
+|         模型名称          |  骨干网络类型  | 图像尺寸 |        GPU        | Batch Size |       加速策略       | 单卡显存占用  |
+|:---------------------:|:--------:| :------: |:-----------------:|:----------:|:----------------:|:-------:|
+| SAM-seg (Mask R-CNN)  | ViT-B/16 | 1024x1024 |  1x RTX 4090 24G  |     8      |     AMP FP16     | 19.4 GB |
+| SAM-seg (Mask2Former) | ViT-B/16 | 1024x1024 |  1x RTX 4090 24G  |     8      |     AMP FP16     | 21.5 GB |
+|        SAM-det        | ResNet50 | 1024x1024 |  1x RTX 4090 24G  |     8      |       FP32       | 16.6 GB |
+|   RSPrompter-anchor   | ViT-B/16 | 1024x1024 |  1x RTX 4090 24G  |     2      |     AMP FP16     | 20.9 GB |
+|   RSPrompter-query    | ViT-B/16 | 1024x1024 |  1x RTX 4090 24G  |     1      |     AMP FP16     |   OOM   |
+|   RSPrompter-query    | ViT-B/16 | 1024x1024 |  8x RTX 4090 24G  |     1      | DeepSpeed ZeRO-2 |   OOM   |
+
+
 
 
 ### 4. dist_train.sh: Bad substitution的解决
