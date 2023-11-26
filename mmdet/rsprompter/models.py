@@ -1,18 +1,20 @@
 import copy
+import warnings
 import einops
 import numpy as np
 import torch
 from mmcv.cnn import build_norm_layer, ConvModule
 from mmcv.ops import point_sample
 from mmengine import ConfigDict
-from mmengine.model import BaseModel, BaseModule
+from mmengine.dist import is_main_process
+from mmengine.model import BaseModule
 from mmengine.structures import InstanceData
+from peft import get_peft_config, get_peft_model
 from torch import nn, Tensor
 from transformers import SamConfig
 from transformers.models.sam.modeling_sam import SamVisionEncoder, SamMaskDecoder, SamPositionalEmbedding, \
-    SamPromptEncoder, SamModel
+    SamPromptEncoder, SamModel, SamVisionEncoderOutput
 from typing import List, T, Tuple, Optional, Dict, Union
-
 from mmdet.models import MaskRCNN, StandardRoIHead, FCNMaskHead, SinePositionalEncoding, Mask2Former, Mask2FormerHead, \
     MaskFormerFusionHead, BaseDetector
 from mmdet.models.task_modules import SamplingResult
@@ -23,6 +25,8 @@ from mmdet.structures import SampleList, DetDataSample, OptSampleList
 from mmdet.structures.bbox import bbox2roi
 from mmdet.utils import OptConfigType, MultiConfig, ConfigType, InstanceList, reduce_mean
 import torch.nn.functional as F
+
+from mmpretrain.models import LayerNorm2d
 
 
 @MODELS.register_module(force=True)
@@ -54,11 +58,14 @@ class RSPrompterAnchor(MaskRCNN):
             decoder_freeze=True,
             *args,
             **kwargs):
+        peft_config = kwargs.get('backbone', {}).get('peft_config', {})
         super().__init__(*args, **kwargs)
         self.shared_image_embedding = MODELS.build(shared_image_embedding)
         self.decoder_freeze = decoder_freeze
 
-        self.frozen_modules = [self.backbone]
+        self.frozen_modules = []
+        if peft_config is None:
+            self.frozen_modules += [self.backbone]
         if self.decoder_freeze:
             self.frozen_modules += [
                 self.shared_image_embedding,
@@ -87,12 +94,16 @@ class RSPrompterAnchor(MaskRCNN):
         positional_embedding = self.shared_image_embedding(torch.stack([x_embed, y_embed], dim=-1))
         return positional_embedding.permute(2, 0, 1).unsqueeze(0)  # channel x height x width
 
-    def loss(self, batch_inputs: Tensor,
-             batch_data_samples: SampleList) -> dict:
+    def extract_feat(self, batch_inputs: Tensor) -> Tuple[Tensor]:
         vision_outputs = self.backbone(batch_inputs)
-
-        image_embeddings = vision_outputs[0]
-        vision_hidden_states = vision_outputs[1]
+        if isinstance(vision_outputs, SamVisionEncoderOutput):
+            image_embeddings = vision_outputs[0]
+            vision_hidden_states = vision_outputs[1]
+        elif isinstance(vision_outputs, tuple):
+            image_embeddings = vision_outputs[0]
+            vision_hidden_states = vision_outputs
+        else:
+            raise NotImplementedError
 
         image_positional_embeddings = self.get_image_wide_positional_embeddings(size=image_embeddings.shape[-1])
         # repeat with batch size
@@ -100,9 +111,13 @@ class RSPrompterAnchor(MaskRCNN):
         image_positional_embeddings = image_positional_embeddings.repeat(batch_size, 1, 1, 1)
 
         x = self.neck(vision_hidden_states)
+        return x, image_embeddings, image_positional_embeddings
+
+    def loss(self, batch_inputs: Tensor,
+             batch_data_samples: SampleList) -> dict:
+        x, image_embeddings, image_positional_embeddings = self.extract_feat(batch_inputs)
 
         losses = dict()
-
         # RPN forward and loss
         proposal_cfg = self.train_cfg.get('rpn_proposal',
                                           self.test_cfg.rpn)
@@ -134,16 +149,7 @@ class RSPrompterAnchor(MaskRCNN):
                 batch_inputs: Tensor,
                 batch_data_samples: SampleList,
                 rescale: bool = True) -> SampleList:
-        vision_outputs = self.backbone(batch_inputs)
-        image_embeddings = vision_outputs[0]
-        vision_hidden_states = vision_outputs[1]
-
-        image_positional_embeddings = self.get_image_wide_positional_embeddings(size=image_embeddings.shape[-1])
-        # repeat with batch size
-        batch_size = image_embeddings.shape[0]
-        image_positional_embeddings = image_positional_embeddings.repeat(batch_size, 1, 1, 1)
-
-        x = self.neck(vision_hidden_states)
+        x, image_embeddings, image_positional_embeddings = self.extract_feat(batch_inputs)
 
         # If there are no pre-defined proposals, use RPN to get proposals
         if batch_data_samples[0].get('proposals', None) is None:
@@ -172,11 +178,15 @@ class RSPrompterQuery(Mask2Former):
             decoder_freeze=True,
             *args,
             **kwargs):
+        peft_config = kwargs.get('backbone', {}).get('peft_config', {})
         super().__init__(*args, **kwargs)
         self.decoder_freeze = decoder_freeze
         self.with_mask2formerhead = False if isinstance(self.panoptic_head, RSMask2FormerHead) else True
         self.shared_image_embedding = MODELS.build(shared_image_embedding)
-        self.frozen_modules = [self.backbone]
+
+        self.frozen_modules = []
+        if peft_config is None:
+            self.frozen_modules += [self.backbone]
         if self.decoder_freeze:
             self.frozen_modules += [
                 self.shared_image_embedding,
@@ -186,6 +196,7 @@ class RSPrompterQuery(Mask2Former):
 
     def _set_grad_false(self, module_list=[]):
         for module in module_list:
+            module.eval()
             if isinstance(module, nn.Parameter):
                 module.requires_grad = False
             for param in module.parameters():
@@ -203,18 +214,30 @@ class RSPrompterQuery(Mask2Former):
         positional_embedding = self.shared_image_embedding(torch.stack([x_embed, y_embed], dim=-1))
         return positional_embedding.permute(2, 0, 1).unsqueeze(0)  # channel x height x width
 
-    def loss(self, batch_inputs: Tensor,
-             batch_data_samples: SampleList) -> Dict[str, Tensor]:
+    def extract_feat(self, batch_inputs: Tensor) -> Tuple[Tensor]:
         vision_outputs = self.backbone(batch_inputs)
-        image_embeddings = vision_outputs[0]
-        vision_hidden_states = vision_outputs[1]
-
-        x = self.neck(vision_hidden_states)
+        if isinstance(vision_outputs, SamVisionEncoderOutput):
+            image_embeddings = vision_outputs[0]
+            vision_hidden_states = vision_outputs[1]
+        elif isinstance(vision_outputs, tuple):
+            image_embeddings = vision_outputs[0]
+            vision_hidden_states = vision_outputs
+        else:
+            raise NotImplementedError
 
         image_positional_embeddings = self.get_image_wide_positional_embeddings(size=image_embeddings.shape[-1])
         # repeat with batch size
         batch_size = image_embeddings.shape[0]
         image_positional_embeddings = image_positional_embeddings.repeat(batch_size, 1, 1, 1)
+
+        x = self.neck(vision_hidden_states)
+        return x, image_embeddings, image_positional_embeddings
+
+    def loss(self, batch_inputs: Tensor,
+             batch_data_samples: SampleList) -> Dict[str, Tensor]:
+
+        x, image_embeddings, image_positional_embeddings = self.extract_feat(batch_inputs)
+
         if self.with_mask2formerhead:
             losses = self.panoptic_head.loss(x, batch_data_samples)
         else:
@@ -227,14 +250,9 @@ class RSPrompterQuery(Mask2Former):
                 batch_inputs: Tensor,
                 batch_data_samples: SampleList,
                 rescale: bool = True) -> SampleList:
-        vision_outputs = self.backbone(batch_inputs)
-        image_embeddings = vision_outputs[0]
-        vision_hidden_states = vision_outputs[1]
-        x = self.neck(vision_hidden_states)
-        image_positional_embeddings = self.get_image_wide_positional_embeddings(size=image_embeddings.shape[-1])
-        # repeat with batch size
-        batch_size = image_embeddings.shape[0]
-        image_positional_embeddings = image_positional_embeddings.repeat(batch_size, 1, 1, 1)
+
+        x, image_embeddings, image_positional_embeddings = self.extract_feat(batch_inputs)
+
         if self.with_mask2formerhead:
             mask_cls_results, mask_pred_results = self.panoptic_head.predict(x, batch_data_samples)
         else:
@@ -742,18 +760,119 @@ class RSSamPositionalEmbedding(SamPositionalEmbedding, BaseModule):
 
 
 @MODELS.register_module()
-class RSSamVisionEncoder(SamVisionEncoder, BaseModule):
+class RSSamVisionEncoder(BaseModule):
     def __init__(
             self,
             hf_pretrain_name,
             extra_config=None,
+            peft_config=None,
             init_cfg=None,
     ):
         BaseModule.__init__(self, init_cfg=init_cfg)
         sam_config = SamConfig.from_pretrained(hf_pretrain_name).vision_config
         if extra_config is not None:
             sam_config.update(extra_config)
-        self.vision_encoder = SamVisionEncoder(sam_config)
+        vision_encoder = SamVisionEncoder(sam_config)
+        # load checkpoint
+        if init_cfg is not None:
+            from mmengine.runner.checkpoint import load_checkpoint
+            load_checkpoint(
+                vision_encoder,
+                init_cfg.get('checkpoint'),
+                map_location='cpu',
+                revise_keys=[(r'^module\.', ''), (r'^vision_encoder\.', '')])
+
+        if peft_config is not None and isinstance(peft_config, dict):
+            config = {
+                "peft_type": "LORA",
+                "r": 16,
+                'target_modules': ["qkv"],
+                "lora_alpha": 32,
+                "lora_dropout": 0.05,
+                "bias": "none",
+                "inference_mode": False,
+            }
+            config.update(peft_config)
+            peft_config = get_peft_config(config)
+            self.vision_encoder = get_peft_model(vision_encoder, peft_config)
+            if is_main_process():
+                self.vision_encoder.print_trainable_parameters()
+        else:
+            self.vision_encoder = vision_encoder
+        self.vision_encoder.is_init = True
+
+    def init_weights(self):
+        if is_main_process():
+            print('the vision encoder has been initialized')
+
+    def forward(self, *args, **kwargs):
+        return self.vision_encoder(*args, **kwargs)
+
+
+@MODELS.register_module()
+class MMPretrainSamVisionEncoder(BaseModule):
+    def __init__(
+            self,
+            hf_pretrain_name,
+            img_size=1024,
+            peft_config=None,
+            init_cfg=None,
+    ):
+        super().__init__(init_cfg=init_cfg)
+        vision_encoder_cfg = dict(
+            type='mmpretrain.ViTSAM',
+            arch=hf_pretrain_name.split('-')[-1],
+            img_size=img_size,
+            patch_size=16,
+            out_channels=256,
+            use_abs_pos=True,
+            use_rel_pos=True,
+            window_size=14,
+        )
+        vision_encoder = MODELS.build(vision_encoder_cfg)
+        # load checkpoint
+        if init_cfg is not None:
+            from mmengine.runner.checkpoint import load_checkpoint
+            load_checkpoint(
+                vision_encoder,
+                init_cfg.get('checkpoint'),
+                map_location='cpu',
+                revise_keys=[
+                    (r'^module\.', ''),
+                    (r'^vision_encoder\.', ''),
+                    (r'.layer_norm1.', '.ln1.'),
+                    (r'.layer_norm2.', '.ln2.'),
+                    (r'.mlp.lin1.', '.ffn.layers.0.0.'),
+                    (r'.mlp.lin2.', '.ffn.layers.1.'),
+                    (r'neck.conv1.', 'channel_reduction.0.'),
+                    (r'neck.ln1.', 'channel_reduction.1.'),
+                    (r'neck.conv2.', 'channel_reduction.2.'),
+                    (r'neck.ln2.', 'channel_reduction.3.'),
+                ]
+            )
+
+        if peft_config is not None and isinstance(peft_config, dict):
+            config = {
+                "peft_type": "LORA",
+                "r": 16,
+                'target_modules': ["qkv"],
+                "lora_alpha": 32,
+                "lora_dropout": 0.05,
+                "bias": "none",
+                "inference_mode": False,
+            }
+            config.update(peft_config)
+            peft_config = get_peft_config(config)
+            self.vision_encoder = get_peft_model(vision_encoder, peft_config)
+            if is_main_process():
+                self.vision_encoder.print_trainable_parameters()
+        else:
+            self.vision_encoder = vision_encoder
+        self.vision_encoder.is_init = True
+
+    def init_weights(self):
+        if is_main_process():
+            print('the vision encoder has been initialized')
 
     def forward(self, *args, **kwargs):
         return self.vision_encoder(*args, **kwargs)
@@ -821,6 +940,50 @@ class RSFPN(BaseModule):
         return x
 
 
+@MODELS.register_module()
+class PseudoFeatureAggregator(BaseModule):
+    def __init__(
+            self,
+            in_channels,
+            hidden_channels=64,
+            out_channels=256,
+            init_cfg=None,
+    ):
+        super().__init__(init_cfg=init_cfg)
+
+        self.channel_fusion = nn.Sequential(
+            nn.Conv2d(
+                in_channels,
+                hidden_channels,
+                kernel_size=1,
+                bias=False,
+            ),
+            LayerNorm2d(hidden_channels, eps=1e-6),
+            nn.Conv2d(
+                hidden_channels,
+                hidden_channels,
+                kernel_size=3,
+                padding=1,
+                bias=False,
+            ),
+            LayerNorm2d(hidden_channels, eps=1e-6),
+            nn.Conv2d(
+                hidden_channels,
+                out_channels,
+                kernel_size=3,
+                padding=1,
+                bias=False,
+            ),
+            LayerNorm2d(out_channels, eps=1e-6),
+        )
+
+    def forward(self, inputs):
+        assert len(inputs) == 1
+        x = inputs[0]
+        x = self.channel_fusion(x)
+        return x
+    
+    
 @MODELS.register_module()
 class RSFeatureAggregator(BaseModule):
     in_channels_dict = {
@@ -1058,15 +1221,24 @@ class SAMSegMaskRCNN(MaskRCNN):
             *args,
             **kwargs,
     ):
+        peft_config = kwargs.get('backbone', {}).get('peft_config', {})
         super().__init__(*args, **kwargs)
-        self.backbone.eval()
-        for param in self.backbone.parameters():
-            param.requires_grad = False
+
+        if peft_config is None:
+            self.backbone.eval()
+            for param in self.backbone.parameters():
+                param.requires_grad = False
 
     def extract_feat(self, batch_inputs: Tensor) -> Tuple[Tensor]:
         vision_outputs = self.backbone(batch_inputs)
-        image_embeddings = vision_outputs[0]
-        vision_hidden_states = vision_outputs[1]
+        if isinstance(vision_outputs, SamVisionEncoderOutput):
+            image_embeddings = vision_outputs.last_hidden_state
+            vision_hidden_states = vision_outputs.hidden_states
+        elif isinstance(vision_outputs, tuple):
+            image_embeddings = vision_outputs[0]
+            vision_hidden_states = vision_outputs
+        else:
+            raise NotImplementedError
         x = self.neck(vision_hidden_states)
         return x
 
@@ -1078,22 +1250,25 @@ class SAMSegMask2Former(Mask2Former):
             *args,
             **kwargs,
     ):
+        peft_config = kwargs.get('backbone', {}).get('peft_config', {})
         super().__init__(*args, **kwargs)
-        self.backbone.eval()
-        for param in self.backbone.parameters():
-            param.requires_grad = False
+
+        if peft_config is None:
+            self.backbone.eval()
+            for param in self.backbone.parameters():
+                param.requires_grad = False
 
     def extract_feat(self, batch_inputs: Tensor) -> Tuple[Tensor]:
         vision_outputs = self.backbone(batch_inputs)
-        if isinstance(vision_outputs, torch.Tensor):
-            image_embeddings = vision_outputs
+        if isinstance(vision_outputs, SamVisionEncoderOutput):
+            image_embeddings = vision_outputs.last_hidden_state
+            vision_hidden_states = vision_outputs.hidden_states
+        elif isinstance(vision_outputs, tuple):
+            image_embeddings = vision_outputs[0]
             vision_hidden_states = vision_outputs
-        elif isinstance(vision_outputs, tuple) and len(vision_outputs) == 1:
-            image_embeddings = vision_outputs[0]
-            vision_hidden_states = vision_outputs[0]
         else:
-            image_embeddings = vision_outputs[0]
-            vision_hidden_states = vision_outputs[1]
+            raise NotImplementedError
+
         x = self.neck(vision_hidden_states)
         return x
 
