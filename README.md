@@ -137,8 +137,15 @@ mim install "mmcv>=2.0.0"
 **Step 4**: Install other dependencies.
 
 ```shell
-pip install -U transformers wandb einops pycocotools shapely scipy terminaltables
+pip install -U transformers wandb einops pycocotools shapely scipy terminaltables importlib
 ```
+
+**Step 5**: [Optional] Install DeepSpeed.
+
+If you want to use DeepSpeed to train the model, you need to install DeepSpeed. The installation method of DeepSpeed can refer to the [DeepSpeed official document](https://github.com/microsoft/DeepSpeed).
+Note: The support for DeepSpeed under the Windows system is not perfect yet, we recommend that you use DeepSpeed under the Linux system.
+
+
 
 </details>
 

@@ -140,7 +140,13 @@ mim install "mmcv>=2.0.0"
 ```shell
 pip install -U transformers wandb einops pycocotools shapely scipy terminaltables importlib
 ```
-[可选]安装deepspeed 
+
+**步骤 5**：[可选] 安装 DeepSpeed。
+
+如果您想使用 DeepSpeed 训练模型，您需要安装 DeepSpeed。DeepSpeed 的安装方法可以参考 [DeepSpeed 官方文档](https://github.com/microsoft/DeepSpeed)。
+
+注解：Windows 系统下对 DeepSpeed 的支持尚未完善，我们建议您在 Linux 系统下使用 DeepSpeed。
+
 
 </details>
 
