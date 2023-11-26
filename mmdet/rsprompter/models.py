@@ -165,6 +165,95 @@ class RSPrompterAnchor(MaskRCNN):
 
 
 @MODELS.register_module()
+class RSPrompterQuery(Mask2Former):
+    def __init__(
+            self,
+            shared_image_embedding,
+            decoder_freeze=True,
+            *args,
+            **kwargs):
+        super().__init__(*args, **kwargs)
+        self.decoder_freeze = decoder_freeze
+        self.with_mask2formerhead = False if isinstance(self.panoptic_head, RSMask2FormerHead) else True
+        self.shared_image_embedding = MODELS.build(shared_image_embedding)
+        self.frozen_modules = [self.backbone]
+        if self.decoder_freeze:
+            self.frozen_modules += [
+                self.shared_image_embedding,
+                self.panoptic_head.mask_decoder,
+            ]
+        self._set_grad_false(self.frozen_modules)
+
+    def _set_grad_false(self, module_list=[]):
+        for module in module_list:
+            if isinstance(module, nn.Parameter):
+                module.requires_grad = False
+            for param in module.parameters():
+                param.requires_grad = False
+
+    def get_image_wide_positional_embeddings(self, size):
+        target_device = self.shared_image_embedding.shared_image_embedding.positional_embedding.device
+        target_dtype = self.shared_image_embedding.shared_image_embedding.positional_embedding.dtype
+        grid = torch.ones((size, size), device=target_device, dtype=target_dtype)
+        y_embed = grid.cumsum(dim=0) - 0.5
+        x_embed = grid.cumsum(dim=1) - 0.5
+        y_embed = y_embed / size
+        x_embed = x_embed / size
+
+        positional_embedding = self.shared_image_embedding(torch.stack([x_embed, y_embed], dim=-1))
+        return positional_embedding.permute(2, 0, 1).unsqueeze(0)  # channel x height x width
+
+    def loss(self, batch_inputs: Tensor,
+             batch_data_samples: SampleList) -> Dict[str, Tensor]:
+        vision_outputs = self.backbone(batch_inputs)
+        image_embeddings = vision_outputs[0]
+        vision_hidden_states = vision_outputs[1]
+
+        x = self.neck(vision_hidden_states)
+
+        image_positional_embeddings = self.get_image_wide_positional_embeddings(size=image_embeddings.shape[-1])
+        # repeat with batch size
+        batch_size = image_embeddings.shape[0]
+        image_positional_embeddings = image_positional_embeddings.repeat(batch_size, 1, 1, 1)
+        if self.with_mask2formerhead:
+            losses = self.panoptic_head.loss(x, batch_data_samples)
+        else:
+            losses = self.panoptic_head.loss(x, batch_data_samples,
+                                             image_embeddings=image_embeddings,
+                                             image_positional_embeddings=image_positional_embeddings)
+        return losses
+
+    def predict(self,
+                batch_inputs: Tensor,
+                batch_data_samples: SampleList,
+                rescale: bool = True) -> SampleList:
+        vision_outputs = self.backbone(batch_inputs)
+        image_embeddings = vision_outputs[0]
+        vision_hidden_states = vision_outputs[1]
+        x = self.neck(vision_hidden_states)
+        image_positional_embeddings = self.get_image_wide_positional_embeddings(size=image_embeddings.shape[-1])
+        # repeat with batch size
+        batch_size = image_embeddings.shape[0]
+        image_positional_embeddings = image_positional_embeddings.repeat(batch_size, 1, 1, 1)
+        if self.with_mask2formerhead:
+            mask_cls_results, mask_pred_results = self.panoptic_head.predict(x, batch_data_samples)
+        else:
+            mask_cls_results, mask_pred_results = self.panoptic_head.predict(
+                x, batch_data_samples,
+                image_embeddings=image_embeddings,
+                image_positional_embeddings=image_positional_embeddings
+            )
+
+        results_list = self.panoptic_fusion_head.predict(
+            mask_cls_results,
+            mask_pred_results,
+            batch_data_samples,
+            rescale=rescale)
+        results = self.add_pred_to_datasample(batch_data_samples, results_list)
+
+        return results
+
+@MODELS.register_module()
 class RSMask2FormerHead(Mask2FormerHead, BaseModule):
     def __init__(
             self,
