@@ -106,7 +106,7 @@ resume = False
 load_from = None
 
 base_lr = 0.0002
-max_epochs = 600
+max_epochs = 500
 
 train_cfg = dict(max_epochs=max_epochs)
 

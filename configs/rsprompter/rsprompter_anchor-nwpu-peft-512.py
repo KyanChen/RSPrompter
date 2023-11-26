@@ -1,18 +1,18 @@
-_base_ = ['_base_/rsprompter_query.py']
+_base_ = ['_base_/rsprompter_anchor.py']
 
-work_dir = './work_dirs/rsprompter/rsprompter_query-nwpu-peft-512'
+work_dir = './work_dirs/rsprompter/rsprompter_anchor-nwpu-peft-512'
 
 default_hooks = dict(
     timer=dict(type='IterTimerHook'),
     logger=dict(type='LoggerHook', interval=5),
     param_scheduler=dict(type='ParamSchedulerHook'),
-    checkpoint=dict(type='CheckpointHook', interval=1, max_keep_ckpts=4, save_best='coco/bbox_mAP', rule='greater', save_last=True),
+    checkpoint=dict(type='CheckpointHook', interval=1, max_keep_ckpts=5, save_best='coco/bbox_mAP', rule='greater', save_last=True),
     sampler_seed=dict(type='DistSamplerSeedHook'),
     # visualization=dict(type='DetVisualizationHook', draw=True, interval=1, test_out_dir='vis_data')
 )
 
 vis_backends = [dict(type='LocalVisBackend'),
-                # dict(type='WandbVisBackend', init_kwargs=dict(project='rsprompter-nwpu', group='rsprompter-query', name="rsprompter_query-nwpu-peft-512"))
+                # dict(type='WandbVisBackend', init_kwargs=dict(project='rsprompter-nwpu', group='rsprompter-query', name="rsprompter_anchor-nwpu-peft-512"))
                 ]
 visualizer = dict(
     type='DetLocalVisualizer', vis_backends=vis_backends, name='visualizer')
@@ -85,25 +85,19 @@ model = dict(
             out_channels=256,
         ),
     ),
-    panoptic_head=dict(
-        decoder_plus=True,
-        mask_decoder=dict(
-            hf_pretrain_name=hf_sam_pretrain_name,
-            init_cfg=dict(type='Pretrained', checkpoint=hf_sam_pretrain_ckpt_path)
+    roi_head=dict(
+        bbox_head=dict(
+            num_classes=num_classes,
         ),
-        per_pointset_point=prompt_shape[1],
-        with_sincos=True,
-        num_things_classes=num_classes,
-        num_queries=prompt_shape[0],
-        loss_cls=dict(
-            class_weight=[1.0] * num_classes + [0.1])
+        mask_head=dict(
+            mask_decoder=dict(
+                hf_pretrain_name=hf_sam_pretrain_name,
+                init_cfg=dict(type='Pretrained', checkpoint=hf_sam_pretrain_ckpt_path)
+            ),
+            per_pointset_point=prompt_shape[1],
+            with_sincos=True,
+        ),
     ),
-    panoptic_fusion_head=dict(
-        num_things_classes=num_classes
-    ),
-    test_cfg=dict(
-        max_per_image=prompt_shape[0],
-    )
 )
 
 
@@ -145,7 +139,7 @@ dataset_type = 'NWPUInsSegDataset'
 code_root = '/mnt/search01/usr/chenkeyan/codes/mm_rsprompter'
 data_root = '/mnt/search01/dataset/cky_data/NWPU10'
 
-batch_size_per_gpu = 4
+batch_size_per_gpu = 8
 num_workers = 8
 persistent_workers = True
 train_dataloader = dict(
@@ -178,8 +172,8 @@ test_dataloader = val_dataloader
 resume = False
 load_from = None
 
-base_lr = 0.0001
-max_epochs = 600
+base_lr = 0.0002
+max_epochs = 500
 
 train_cfg = dict(max_epochs=max_epochs)
 param_scheduler = [
@@ -195,48 +189,48 @@ param_scheduler = [
     )
 ]
 
-#### DeepSpeed Configs
-runner_type = 'FlexibleRunner'
-strategy = dict(
-    type='DeepSpeedStrategy',
-    fp16=dict(
-        enabled=True,
-        auto_cast=False,
-        fp16_master_weights_and_grads=False,
-        loss_scale=0,
-        loss_scale_window=500,
-        hysteresis=2,
-        min_loss_scale=1,
-        initial_scale_power=15,
-    ),
-    gradient_clipping=0.1,
-    inputs_to_half=['inputs'],
-    zero_optimization=dict(
-        stage=2,
-        allgather_partitions=True,
-        allgather_bucket_size=2e8,
-        reduce_scatter=True,
-        reduce_bucket_size='auto',
-        overlap_comm=True,
-        contiguous_gradients=True,
-    ),
-)
+#### AMP training config
+runner_type = 'Runner'
 optim_wrapper = dict(
-    type='DeepSpeedOptimWrapper',
+    type='AmpOptimWrapper',
+    dtype='float16',
     optimizer=dict(
         type='AdamW',
         lr=base_lr,
-        weight_decay=0.05
-    )
+        weight_decay=0.05)
 )
-
-# #### AMP training config
-# runner_type = 'Runner'
+#
+# #### DeepSpeed Configs
+# runner_type = 'FlexibleRunner'
+# strategy = dict(
+#     type='DeepSpeedStrategy',
+#     fp16=dict(
+#         enabled=True,
+#         auto_cast=False,
+#         fp16_master_weights_and_grads=False,
+#         loss_scale=0,
+#         loss_scale_window=500,
+#         hysteresis=2,
+#         min_loss_scale=1,
+#         initial_scale_power=15,
+#     ),
+#     gradient_clipping=0.1,
+#     inputs_to_half=['inputs'],
+#     zero_optimization=dict(
+#         stage=2,
+#         allgather_partitions=True,
+#         allgather_bucket_size=2e8,
+#         reduce_scatter=True,
+#         reduce_bucket_size='auto',
+#         overlap_comm=True,
+#         contiguous_gradients=True,
+#     ),
+# )
 # optim_wrapper = dict(
-#     type='AmpOptimWrapper',
-#     dtype='float16',
+#     type='DeepSpeedOptimWrapper',
 #     optimizer=dict(
 #         type='AdamW',
 #         lr=base_lr,
-#         weight_decay=0.05)
+#         weight_decay=0.05
+#     )
 # )
