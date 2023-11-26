@@ -144,6 +144,10 @@ pip install -U transformers wandb einops pycocotools shapely scipy terminaltable
 
 If you want to use DeepSpeed to train the model, you need to install DeepSpeed. The installation method of DeepSpeed can refer to the [DeepSpeed official document](https://github.com/microsoft/DeepSpeed).
 
+```shell
+pip install deepspeed
+```
+
 Note: The support for DeepSpeed under the Windows system is not perfect yet, we recommend that you use DeepSpeed under the Linux system.
 
 

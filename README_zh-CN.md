@@ -145,6 +145,10 @@ pip install -U transformers wandb einops pycocotools shapely scipy terminaltable
 
 如果您想使用 DeepSpeed 训练模型，您需要安装 DeepSpeed。DeepSpeed 的安装方法可以参考 [DeepSpeed 官方文档](https://github.com/microsoft/DeepSpeed)。
 
+```shell
+pip install deepspeed
+```
+
 注解：Windows 系统下对 DeepSpeed 的支持尚未完善，我们建议您在 Linux 系统下使用 DeepSpeed。
 
 
@@ -324,6 +328,20 @@ python zero_to_fp32.py . $SAVE_CHECKPOINT_NAME -t $CHECKPOINT_DIR  # $SAVE_CHECK
 ``` 
 - 将Config文件中的`runner_type`改为`Runner`。
 - 使用MMDetection的方式进行评测，即可得到评测结果。
+
+### 3. 关于资源消耗情况
+
+这里我们列出了使用不同模型的资源消耗情况，供您参考。
+
+|         模型名称          |  骨干网络类型  | 图像尺寸 |       GPU       | Batch Size  |       加速策略       | 单卡显存占用  |
+|:---------------------:|:--------:| :------: |:---------------:|:-----------:|:----------------:|:-------:|
+| SAM-seg (Mask R-CNN)  | ViT-B/16 | 1024x1024 |   1x RTX 4090   |      8      |     AMP FP16     | 19.4 GB |
+| SAM-seg (Mask2Former) | ViT-B/16 | 1024x1024 |   1x RTX 4090   |      8      |     AMP FP16     | 21.5 GB |
+|        SAM-det        | ResNet50 | 1024x1024 |   1x RTX 4090   |      8      |       FP32       | 16.6 GB |
+|   RSPrompter-anchor   | ViT-B/16 | 1024x1024 |   1x RTX 4090   |      2      |     AMP FP16     | 20.9 GB |
+|   RSPrompter-query    | ViT-B/16 | 1024x1024 |   1x RTX 4090   |      1      |     AMP FP16     |   OOM   |
+|   RSPrompter-anchor   | ViT-B/16 | 1024x1024 |        1        | 8x RTX 4090 | DeepSpeed ZeRO-2 | 2.4 GB  |
+
 
 </details>
 
