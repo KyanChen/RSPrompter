@@ -137,7 +137,7 @@ mim install "mmcv>=2.0.0"
 **Step 4**: Install other dependencies.
 
 ```shell
-pip install -U transformers wandb
+pip install -U transformers wandb einops pycocotools shapely scipy terminaltables
 ```
 
 </details>

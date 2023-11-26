@@ -138,8 +138,7 @@ mim install "mmcv>=2.0.0"
 **步骤 4**：安装其他依赖项。
 
 ```shell
-pip install -r requirements/build.txt
-pip install -r requirements/optional.txt
+pip install -U transformers wandb einops pycocotools shapely scipy terminaltables
 ```
 
 </details>
