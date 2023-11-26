@@ -118,8 +118,13 @@ conda activate rsprompter
 
 **Step 2**: Install [PyTorch](https://pytorch.org/get-started/locally/).
 
+Linux:
 ```shell
 pip install torch torchvision torchaudio
+```
+Windows:
+```shell
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 ```
 
 **Step 3**: Install [MMCV](https://mmcv.readthedocs.io/en/latest/get_started/installation.html).
