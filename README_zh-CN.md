@@ -138,8 +138,9 @@ mim install "mmcv>=2.0.0"
 **步骤 4**：安装其他依赖项。
 
 ```shell
-pip install -U transformers wandb einops pycocotools shapely scipy terminaltables deepspeed 
+pip install -U transformers wandb einops pycocotools shapely scipy terminaltables importlib
 ```
+[可选]安装deepspeed 
 
 </details>
 
