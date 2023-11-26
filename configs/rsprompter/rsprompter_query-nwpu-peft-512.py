@@ -145,7 +145,7 @@ dataset_type = 'NWPUInsSegDataset'
 code_root = '/mnt/search01/usr/chenkeyan/codes/mm_rsprompter'
 data_root = '/mnt/search01/dataset/cky_data/NWPU10'
 
-batch_size_per_gpu = 2
+batch_size_per_gpu = 4
 num_workers = 8
 persistent_workers = True
 train_dataloader = dict(
@@ -195,48 +195,48 @@ param_scheduler = [
     )
 ]
 
-# #### DeepSpeed Configs
-# runner_type = 'FlexibleRunner'
-# strategy = dict(
-#     type='DeepSpeedStrategy',
-#     fp16=dict(
-#         enabled=True,
-#         auto_cast=False,
-#         fp16_master_weights_and_grads=False,
-#         loss_scale=0,
-#         loss_scale_window=500,
-#         hysteresis=2,
-#         min_loss_scale=1,
-#         initial_scale_power=15,
-#     ),
-#     gradient_clipping=0.1,
-#     inputs_to_half=['inputs'],
-#     zero_optimization=dict(
-#         stage=2,
-#         allgather_partitions=True,
-#         allgather_bucket_size=2e8,
-#         reduce_scatter=True,
-#         reduce_bucket_size='auto',
-#         overlap_comm=True,
-#         contiguous_gradients=True,
-#     ),
-# )
-# optim_wrapper = dict(
-#     type='DeepSpeedOptimWrapper',
-#     optimizer=dict(
-#         type='AdamW',
-#         lr=base_lr,
-#         weight_decay=0.05
-#     )
-# )
-
-#### AMP training config
-runner_type = 'Runner'
+#### DeepSpeed Configs
+runner_type = 'FlexibleRunner'
+strategy = dict(
+    type='DeepSpeedStrategy',
+    fp16=dict(
+        enabled=True,
+        auto_cast=False,
+        fp16_master_weights_and_grads=False,
+        loss_scale=0,
+        loss_scale_window=500,
+        hysteresis=2,
+        min_loss_scale=1,
+        initial_scale_power=15,
+    ),
+    gradient_clipping=0.1,
+    inputs_to_half=['inputs'],
+    zero_optimization=dict(
+        stage=2,
+        allgather_partitions=True,
+        allgather_bucket_size=2e8,
+        reduce_scatter=True,
+        reduce_bucket_size='auto',
+        overlap_comm=True,
+        contiguous_gradients=True,
+    ),
+)
 optim_wrapper = dict(
-    type='AmpOptimWrapper',
-    dtype='float16',
+    type='DeepSpeedOptimWrapper',
     optimizer=dict(
         type='AdamW',
         lr=base_lr,
-        weight_decay=0.05)
+        weight_decay=0.05
+    )
 )
+
+# #### AMP training config
+# runner_type = 'Runner'
+# optim_wrapper = dict(
+#     type='AmpOptimWrapper',
+#     dtype='float16',
+#     optimizer=dict(
+#         type='AdamW',
+#         lr=base_lr,
+#         weight_decay=0.05)
+# )
