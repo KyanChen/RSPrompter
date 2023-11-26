@@ -151,6 +151,7 @@ strategy = dict(
     ),
 )
 optim_wrapper = dict(
+    __delete__=True,
     type='DeepSpeedOptimWrapper',
     optimizer=dict(
         type='AdamW',

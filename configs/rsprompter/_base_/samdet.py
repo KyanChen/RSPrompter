@@ -270,16 +270,6 @@ param_scheduler = [
     )
 ]
 
-optim_wrapper = dict(
-    type='OptimWrapper',
-    optimizer=dict(
-        type='AdamW',
-        lr=base_lr,
-        weight_decay=0.05,
-        eps=1e-8,
-        betas=(0.9, 0.999))
-)
-
 # Default setting for scaling LR automatically
 #   - `enable` means enable scaling LR automatically
 #       or not by default.

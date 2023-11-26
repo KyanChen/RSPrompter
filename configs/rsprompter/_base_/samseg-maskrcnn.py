@@ -290,15 +290,6 @@ param_scheduler = [
 
 find_unused_parameters = True
 
-optim_wrapper = dict(
-    type='AmpOptimWrapper',
-    dtype='float16',
-    optimizer=dict(
-        type='AdamW',
-        lr=base_lr,
-        weight_decay=0.05
-    )
-)
 
 # Default setting for scaling LR automatically
 #   - `enable` means enable scaling LR automatically
