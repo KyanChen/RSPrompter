@@ -64,12 +64,14 @@ If you find this project helpful, please give us a star ⭐️, your support is 
 
 🌟 **2023.11.25** Updated the code of RSPrompter, which is completely consistent with the API interface and usage method of MMDetection.
 
+🌟 **2023.11.26** Added the LoRA efficient fine-tuning method, and made the input image size variable, reducing the memory usage of the model.
+
 ## TODO
 
 - [X] Consistent API interface and usage method with MMDetection
-- [ ] Reduce the memory usage of the model while ensuring performance by reducing the image input and combining with the large model fine-tuning technology
-- [ ] Dynamically variable image size input
-- [ ] Efficient fine-tuning method in the model
+- [X] Reduce the memory usage of the model while ensuring performance by reducing the image input and combining with the large model fine-tuning technology
+- [X] Dynamically variable image size input
+- [X] Efficient fine-tuning method in the model
 - [ ] Add SAM-cls model
 
 ## Table of Contents
@@ -137,7 +139,7 @@ mim install "mmcv>=2.0.0"
 **Step 4**: Install other dependencies.
 
 ```shell
-pip install -U transformers wandb einops pycocotools shapely scipy terminaltables importlib
+pip install -U transformers wandb einops pycocotools shapely scipy terminaltables importlib peft mat4py
 ```
 
 **Step 5**: [Optional] Install DeepSpeed.
@@ -329,6 +331,30 @@ python zero_to_fp32.py . $SAVE_CHECKPOINT_NAME -t $CHECKPOINT_DIR  # $SAVE_CHECK
 ``` 
 - Change `runner_type` in the Config file to `Runner`.
 - Use the method of MMDetection to evaluate, and you can get the evaluation results.
+
+
+### 3. About resource consumption
+
+Here we list the resource consumption of using different models for your reference.
+
+|         Model Name          | Backbone | Image Size |        GPU         | Batch Size | Acceleration Strategy | Single Card Memory Usage |
+|:---------------------:|:--------:| :------: |:------------------:|:----------:|:----------:|:-------:|
+| SAM-seg (Mask R-CNN)  | ViT-B/16 | 1024x1024 |  1x RTX 4090 24G   |     8      |  AMP FP16  | 19.4 GB |
+| SAM-seg (Mask2Former) | ViT-B/16 | 1024x1024 |  1x RTX 4090 24G   |     8      |  AMP FP16  | 21.5 GB |
+|        SAM-det        | ResNet50 | 1024x1024 |  1x RTX 4090 24G   |     8      |    FP32    | 16.6 GB |
+|   RSPrompter-anchor   | ViT-B/16 | 1024x1024 |  1x RTX 4090 24G   |     2      |  AMP FP16  | 20.9 GB |
+|   RSPrompter-query    | ViT-B/16 | 1024x1024 |  1x RTX 4090 24G   |     1      |  AMP FP16  |   OOM   |
+|   RSPrompter-query    | ViT-B/16 | 1024x1024 | 8x NVIDIA A100 40G |     1      |   ZeRO-2   | 39.6 GB |
+|   RSPrompter-anchor   | ViT-B/16 |  512x512  |  8x RTX 4090 24G   |     4      |  AMP FP16  | 20.9 GB |
+|   RSPrompter-query    | ViT-B/16 |  512x512  |  8x RTX 4090 24G   |     2      |   ZeRO-2   | 21.1 GB |
+
+
+Note: Low-resolution input images can effectively reduce the memory usage of the model, but their actual performance has not been verified. For details, please refer to [Config file](configs/rsprompter/rsprompter_query-nwpu-peft-512.py).
+
+### 4. Solution to dist_train.sh: Bad substitution
+
+If you encounter the error `Bad substitution` when running `dist_train.sh`, please use `bash dist_train.sh` to run the script.
+
 
 </details>
 

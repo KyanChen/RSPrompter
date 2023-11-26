@@ -64,13 +64,15 @@
 
 🌟 **2023.11.25** 更新了RSPrompter的代码，完全与MMDetection保持一致的API接口及使用方法。
 
+🌟 **2023.11.26** 加入了LoRA高效微调方法，并使得输入图像尺寸可变，减小了模型的显存占用。
+
 
 ## TODO
 
 - [X] 与MMDetection保持一致的API接口及使用方法
-- [ ] 通过减小图像输入并结合大模型微调技术在保证性能的同时减小模型的显存占用
-- [ ] 动态可变的图像尺寸输入
-- [ ] 在模型中加入高效微调的方法
+- [X] 通过减小图像输入并结合大模型微调技术在保证性能的同时减小模型的显存占用
+- [X] 动态可变的图像尺寸输入
+- [X] 在模型中加入高效微调的方法
 - [ ] 加入SAM-cls模型
 
 ## 目录
@@ -138,7 +140,7 @@ mim install "mmcv>=2.0.0"
 **步骤 4**：安装其他依赖项。
 
 ```shell
-pip install -U transformers wandb einops pycocotools shapely scipy terminaltables importlib
+pip install -U transformers wandb einops pycocotools shapely scipy terminaltables importlib peft mat4py
 ```
 
 **步骤 5**：[可选] 安装 DeepSpeed。
@@ -341,8 +343,10 @@ python zero_to_fp32.py . $SAVE_CHECKPOINT_NAME -t $CHECKPOINT_DIR  # $SAVE_CHECK
 |   RSPrompter-anchor   | ViT-B/16 | 1024x1024 |  1x RTX 4090 24G   |     2      |  AMP FP16  | 20.9 GB |
 |   RSPrompter-query    | ViT-B/16 | 1024x1024 |  1x RTX 4090 24G   |     1      |  AMP FP16  |   OOM   |
 |   RSPrompter-query    | ViT-B/16 | 1024x1024 | 8x NVIDIA A100 40G |     1      |   ZeRO-2   | 39.6 GB |
+|   RSPrompter-anchor   | ViT-B/16 |  512x512  |  8x RTX 4090 24G   |     4      |  AMP FP16  | 20.9 GB |
+|   RSPrompter-query    | ViT-B/16 |  512x512  |  8x RTX 4090 24G   |     2      |   ZeRO-2   | 21.1 GB |
 
-
+注解：低分辨率输入图像可以有效减小模型的显存占用，但是其实际性能并未验证，具体见[配置文件](configs/rsprompter/rsprompter_query-nwpu-peft-512.py)。
 
 
 ### 4. dist_train.sh: Bad substitution的解决

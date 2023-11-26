@@ -12,7 +12,7 @@ default_hooks = dict(
 )
 
 vis_backends = [dict(type='LocalVisBackend'),
-                # dict(type='WandbVisBackend', init_kwargs=dict(project='rsprompter-nwpu', group='rsprompter-query', name="rsprompter_anchor-nwpu-peft-512"))
+                dict(type='WandbVisBackend', init_kwargs=dict(project='rsprompter-nwpu', group='rsprompter-query', name="rsprompter_anchor-nwpu-peft-512"))
                 ]
 visualizer = dict(
     type='DetLocalVisualizer', vis_backends=vis_backends, name='visualizer')
@@ -136,10 +136,10 @@ test_pipeline = [
 
 dataset_type = 'NWPUInsSegDataset'
 #### should be changed align with your code root and data root
-code_root = '/mnt/search01/usr/chenkeyan/codes/mm_rsprompter'
-data_root = '/mnt/search01/dataset/cky_data/NWPU10'
+code_root = '/mnt/home/cky/RSPrompter'
+data_root = '/mnt/home/cky/data/NWPU'
 
-batch_size_per_gpu = 8
+batch_size_per_gpu = 4
 num_workers = 8
 persistent_workers = True
 train_dataloader = dict(
