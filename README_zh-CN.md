@@ -343,7 +343,7 @@ python zero_to_fp32.py . $SAVE_CHECKPOINT_NAME -t $CHECKPOINT_DIR  # $SAVE_CHECK
 |   RSPrompter-anchor   | ViT-B/16 | 1024x1024 |  1x RTX 4090 24G   |     2      |  AMP FP16  | 20.9 GB |
 |   RSPrompter-query    | ViT-B/16 | 1024x1024 |  1x RTX 4090 24G   |     1      |  AMP FP16  |   OOM   |
 |   RSPrompter-query    | ViT-B/16 | 1024x1024 | 8x NVIDIA A100 40G |     1      |   ZeRO-2   | 39.6 GB |
-|   RSPrompter-anchor   | ViT-B/16 |  512x512  |  8x RTX 4090 24G   |     4      |  AMP FP16  | 20.9 GB |
+|   RSPrompter-anchor   | ViT-B/16 |  512x512  |  8x RTX 4090 24G   |     4      |  AMP FP16  | 20.2 GB |
 |   RSPrompter-query    | ViT-B/16 |  512x512  |  8x RTX 4090 24G   |     2      |   ZeRO-2   | 21.1 GB |
 
 注解：低分辨率输入图像可以有效减小模型的显存占用，但是其实际性能并未验证，具体见[配置文件](configs/rsprompter/rsprompter_query-nwpu-peft-512.py)。
