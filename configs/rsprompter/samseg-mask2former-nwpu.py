@@ -22,13 +22,13 @@ num_queries = 70
 
 # sam base model
 hf_sam_pretrain_name = "facebook/sam-vit-base"
-hf_sam_pretrain_ckpt_path = "pretrain_models/huggingface/hub/models--facebook--sam-vit-base/snapshots/b5fc59950038394bae73f549a55a9b46bc6f3d96/pytorch_model.bin"
+hf_sam_pretrain_ckpt_path = "~/.cache/huggingface/hub/models--facebook--sam-vit-base/snapshots/b5fc59950038394bae73f549a55a9b46bc6f3d96/pytorch_model.bin"
 # # sam large model
 # hf_sam_pretrain_name = "facebook/sam-vit-large"
-# hf_sam_pretrain_ckpt_path = "pretrain_models/huggingface/hub/models--facebook--sam-vit-large/snapshots/70009d56dac23ebb3265377257158b1d6ed4c802/pytorch_model.bin"
+# hf_sam_pretrain_ckpt_path = "~/.cache//huggingface/hub/models--facebook--sam-vit-large/snapshots/70009d56dac23ebb3265377257158b1d6ed4c802/pytorch_model.bin"
 # # sam huge model
 # hf_sam_pretrain_name = "facebook/sam-vit-huge"
-# hf_sam_pretrain_ckpt_path = "pretrain_models/huggingface/hub/models--facebook--sam-vit-huge/snapshots/89080d6dcd9a900ebd712b13ff83ecf6f072e798/pytorch_model.bin"
+# hf_sam_pretrain_ckpt_path = "~/.cache/huggingface/hub/models--facebook--sam-vit-huge/snapshots/89080d6dcd9a900ebd712b13ff83ecf6f072e798/pytorch_model.bin"
 
 model = dict(
     backbone=dict(
