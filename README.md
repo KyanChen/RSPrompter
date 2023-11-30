@@ -66,6 +66,10 @@ If you find this project helpful, please give us a star ⭐️, your support is 
 
 🌟 **2023.11.26** Added the LoRA efficient fine-tuning method, and made the input image size variable, reducing the memory usage of the model.
 
+🌟 **2023.11.26** Provided a reference for the memory usage of each model, see [Common Problems](#Common-Problems) for details.
+
+🌟 **2023.11.30** Updated the paper content, see [Arxiv](https://arxiv.org/abs/2306.16269) for details.
+
 ## TODO
 
 - [X] Consistent API interface and usage method with MMDetection
