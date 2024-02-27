@@ -821,7 +821,7 @@ class MMPretrainSamVisionEncoder(BaseModule):
         super().__init__(init_cfg=init_cfg)
         vision_encoder_cfg = dict(
             type='mmpretrain.ViTSAM',
-            arch=hf_pretrain_name.split('-')[-1],
+            arch=hf_pretrain_name.split('-')[-1].split('_')[-1],
             img_size=img_size,
             patch_size=16,
             out_channels=256,
@@ -987,9 +987,9 @@ class PseudoFeatureAggregator(BaseModule):
 @MODELS.register_module()
 class RSFeatureAggregator(BaseModule):
     in_channels_dict = {
-        'facebook/sam-vit-base': [768] * (12+1),
-        'facebook/sam-vit-large': [1024] * (24+1),
-        'facebook/sam-vit-huge': [1280] * (32+1),
+        'base': [768] * (12+1),
+        'large': [1024] * (24+1),
+        'huge': [1280] * (32+1),
     }
 
     def __init__(
@@ -1002,7 +1002,8 @@ class RSFeatureAggregator(BaseModule):
     ):
         super().__init__(init_cfg=init_cfg)
         assert isinstance(in_channels, str)
-        self.in_channels = self.in_channels_dict[in_channels]
+        model_arch = 'base' if 'base' in in_channels else 'large' if 'large' in in_channels else 'huge'
+        self.in_channels = self.in_channels_dict[model_arch]
         self.select_layers = select_layers
 
         self.downconvs = nn.ModuleList()

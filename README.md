@@ -122,28 +122,29 @@ conda create -n rsprompter python=3.10 -y
 conda activate rsprompter
 ```
 
-**Step 2**: Install [PyTorch](https://pytorch.org/get-started/locally/).
+**Step 2**: Install [PyTorch2.1.x](https://pytorch.org/get-started/locally/).
 
-Linux:
+Linux/Windows:
 ```shell
-pip install torch torchvision torchaudio
+pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 --index-url https://download.pytorch.org/whl/cu121
 ```
-Windows:
+Or
+
 ```shell
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+conda install pytorch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 pytorch-cuda=12.1 -c pytorch -c nvidia
 ```
 
-**Step 3**: Install [MMCV](https://mmcv.readthedocs.io/en/latest/get_started/installation.html).
+**Step 3**: Install [MMCV2.1.x](https://mmcv.readthedocs.io/en/latest/get_started/installation.html).
 
 ```shell
 pip install -U openmim
-mim install "mmcv>=2.0.0"
+mim install mmcv==2.1.0
 ```
 
 **Step 4**: Install other dependencies.
 
 ```shell
-pip install -U transformers wandb einops pycocotools shapely scipy terminaltables importlib peft mat4py
+pip install -U transformers==4.38.1 wandb==0.16.3 einops pycocotools shapely scipy terminaltables importlib peft==0.8.2 mat4py==0.6.0 mpi4py
 ```
 
 **Step 5**: [Optional] Install DeepSpeed.
@@ -151,7 +152,7 @@ pip install -U transformers wandb einops pycocotools shapely scipy terminaltable
 If you want to use DeepSpeed to train the model, you need to install DeepSpeed. The installation method of DeepSpeed can refer to the [DeepSpeed official document](https://github.com/microsoft/DeepSpeed).
 
 ```shell
-pip install deepspeed
+pip install deepspeed==0.13.4
 ```
 
 Note: The support for DeepSpeed under the Windows system is not perfect yet, we recommend that you use DeepSpeed under the Linux system.
@@ -239,7 +240,7 @@ We provide the configuration files of the SAM-based models used in the paper, wh
 - `vis_backends-WandbVisBackend`: Configuration of network-side visualization tools, **after opening the comment, you need to register an account on the `wandb` official website, and you can view the visualization results during training in the web browser**.
 - `num_classes`: The number of categories in the dataset, **which needs to be modified according to the number of categories in the dataset**.
 - `prompt_shape`: The shape of the Prompt, the first parameter represents $N_p$, and the second parameter represents $K_p$, which generally does not need to be modified.
-- `hf_sam_pretrain_name`: The name of the SAM model on HuggingFace Spaces, which generally does not need to be modified.
+- `hf_sam_pretrain_name`: The name of the SAM model on HuggingFace Spaces, **which needs to be modified to your own path**, you can use the [download script](tools/rsprompter/download_hf_sam_pretrain_ckpt.py) to download.
 - `hf_sam_pretrain_ckpt_path`: The checkpoint path of the SAM model on HuggingFace Spaces, **which needs to be modified to your own path**, you can use the [download script](https://github.com/KyanChen/RSPrompter/blob/release/tools/rsprompter/download_hf_sam_pretrain_ckpt.py) to download.
 - `model-decoder_freeze`: Whether to freeze the parameters of the SAM decoder, which generally does not need to be modified.
 - `model-neck-feature_aggregator-hidden_channels`: The hidden channel number of the feature aggregator, which generally does not need to be modified.
@@ -360,6 +361,13 @@ Note: Low-resolution input images can effectively reduce the memory usage of the
 If you encounter the error `Bad substitution` when running `dist_train.sh`, please use `bash dist_train.sh` to run the script.
 
 
+### 5. Unable to access and download the model on HuggingFace Spaces
+
+If you are unable to access and download the model on HuggingFace Spaces, please use the [download script](tools/rsprompter/download_hf_sam_pretrain_ckpt.py) to download.
+Please refer to the [official processing method](https://huggingface.co/docs/transformers/installation#offline-mode).
+
+
+
 </details>
 
 ## Acknowledgement
@@ -371,11 +379,12 @@ This project is developed based on the [MMDetection](https://github.com/open-mml
 If you use the code or performance benchmarks of this project in your research, please refer to the bibtex below to cite RSPrompter.
 
 ```
-@article{chen2023rsprompter,
+@article{chen2024rsprompter,
   title={RSPrompter: Learning to prompt for remote sensing instance segmentation based on visual foundation model},
   author={Chen, Keyan and Liu, Chenyang and Chen, Hao and Zhang, Haotian and Li, Wenyuan and Zou, Zhengxia and Shi, Zhenwei},
-  journal={arXiv preprint arXiv:2306.16269},
-  year={2023}
+  journal={IEEE Transactions on Geoscience and Remote Sensing},
+  year={2024},
+  publisher={IEEE}
 }
 ```
 

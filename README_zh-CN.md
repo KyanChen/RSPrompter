@@ -44,7 +44,7 @@
 
 本项目仓库是论文 [RSPrompter: Learning to Prompt for Remote Sensing Instance Segmentation based on Visual Foundation Model](https://arxiv.org/abs/2306.16269) 的代码实现，基于 [MMDetection](https://github.com/open-mmlab/mmdetection/tree/main) 项目进行开发。
 
-当前分支在PyTorch 2.x 和 CUDA 12.1 下测试通过，支持 Python 3.7+，能兼容绝大多数的 CUDA 版本。
+当前分支在PyTorch 2.x 和 CUDA 12.1 下测试通过，支持 Python 3.8+，能兼容绝大多数的 CUDA 版本。
 
 如果你觉得本项目对你有帮助，请给我们一个 star ⭐️，你的支持是我们最大的动力。
 
@@ -101,14 +101,14 @@
 ### 依赖项
 
 - Linux 或 Windows
-- Python 3.7+，推荐使用 3.10
+- Python 3.8+，推荐使用 3.10
 - PyTorch 2.0 或更高版本，推荐使用 2.1
 - CUDA 11.7 或更高版本，推荐使用 12.1
 - MMCV 2.0 或更高版本，推荐使用 2.1
 
 ### 环境安装
 
-我们推荐使用 Miniconda 来进行安装，以下命令将会创建一个名为 `rsprompter` 的虚拟环境，并安装 PyTorch 和 MMCV。
+推荐使用 Miniconda 来进行安装，以下命令将会创建一个名为 `rsprompter` 的虚拟环境，并安装 PyTorch 和 MMCV。
 
 注解：如果你对 PyTorch 有经验并且已经安装了它，你可以直接跳转到下一小节。否则，你可以按照下述步骤进行准备。
 
@@ -123,28 +123,28 @@ conda create -n rsprompter python=3.10 -y
 conda activate rsprompter
 ```
 
-**步骤 2**：安装 [PyTorch](https://pytorch.org/get-started/locally/)。
+**步骤 2**：安装 [PyTorch2.1.x](https://pytorch.org/get-started/locally/)。
 
-Linux:
+Linux/Windows:
 ```shell
-pip install torch torchvision torchaudio
+pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 --index-url https://download.pytorch.org/whl/cu121
 ```
-Windows:
+或者
 ```shell
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+conda install pytorch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 pytorch-cuda=12.1 -c pytorch -c nvidia
 ```
 
-**步骤 3**：安装 [MMCV](https://mmcv.readthedocs.io/en/latest/get_started/installation.html)。
+**步骤 3**：安装 [MMCV2.1.x](https://mmcv.readthedocs.io/en/latest/get_started/installation.html)。
 
 ```shell
 pip install -U openmim
-mim install "mmcv>=2.0.0"
+mim install mmcv==2.1.0
 ```
 
 **步骤 4**：安装其他依赖项。
 
 ```shell
-pip install -U transformers wandb einops pycocotools shapely scipy terminaltables importlib peft mat4py
+pip install -U transformers==4.38.1 wandb==0.16.3 einops pycocotools shapely scipy terminaltables importlib peft==0.8.2 mat4py==0.6.0 mpi4py
 ```
 
 **步骤 5**：[可选] 安装 DeepSpeed。
@@ -152,7 +152,7 @@ pip install -U transformers wandb einops pycocotools shapely scipy terminaltable
 如果您想使用 DeepSpeed 训练模型，您需要安装 DeepSpeed。DeepSpeed 的安装方法可以参考 [DeepSpeed 官方文档](https://github.com/microsoft/DeepSpeed)。
 
 ```shell
-pip install deepspeed
+pip install deepspeed==0.13.4
 ```
 
 注解：Windows 系统下对 DeepSpeed 的支持尚未完善，我们建议您在 Linux 系统下使用 DeepSpeed。
@@ -238,7 +238,7 @@ ${DATASET_ROOT} # 数据集根目录，例如：/home/username/data/NWPU
 - `vis_backends-WandbVisBackend`：网络端可视化工具的配置，**打开注释后，需要在 `wandb` 官网上注册账号，可以在网络浏览器中查看训练过程中的可视化结果**。
 - `num_classes`：数据集的类别数，**需要根据数据集的类别数进行修改**。
 - `prompt_shape`：Prompt 的形状，第一个参数代表 $N_p$，第二个参数代表 $K_p$，一般不需要修改。
-- `hf_sam_pretrain_name`：HuggingFace Spaces 上的 SAM 模型的名称，一般不需要修改。
+- `hf_sam_pretrain_name`：HuggingFace Spaces 上的 SAM 模型的名称，可以改为自己下载到本地的路径，[下载脚本](tools/rsprompter/download_hf_sam_pretrain_ckpt.py)。
 - `hf_sam_pretrain_ckpt_path`：HuggingFace Spaces 上的 SAM 模型的检查点路径，**需要修改为你自己的路径**，可以使用[下载脚本](tools/rsprompter/download_hf_sam_pretrain_ckpt.py)来下载。
 - `model-decoder_freeze`：是否冻结SAM解码器的参数，一般不需要修改。
 - `model-neck-feature_aggregator-hidden_channels`：特征聚合器的隐藏通道数，一般不需要修改。
@@ -358,6 +358,11 @@ python zero_to_fp32.py . $SAVE_CHECKPOINT_NAME -t $CHECKPOINT_DIR  # $SAVE_CHECK
 如果您在运行`dist_train.sh`时出现了`Bad substitution`的错误，请使用`bash dist_train.sh`来运行脚本。
 
 
+### 5. 无法下载访问和下载HuggingFace Spaces上的模型
+
+如果您无法访问和下载HuggingFace Spaces上的模型，请使用[下载脚本](tools/rsprompter/download_hf_sam_pretrain_ckpt.py)来下载。
+请参考[官方处理方式](https://huggingface.co/docs/transformers/installation#offline-mode)。
+
 </details>
 
 ## 致谢
@@ -369,11 +374,12 @@ python zero_to_fp32.py . $SAVE_CHECKPOINT_NAME -t $CHECKPOINT_DIR  # $SAVE_CHECK
 如果你在研究中使用了本项目的代码或者性能基准，请参考如下 bibtex 引用 RSPrompter。
 
 ```
-@article{chen2023rsprompter,
+@article{chen2024rsprompter,
   title={RSPrompter: Learning to prompt for remote sensing instance segmentation based on visual foundation model},
   author={Chen, Keyan and Liu, Chenyang and Chen, Hao and Zhang, Haotian and Li, Wenyuan and Zou, Zhengxia and Shi, Zhenwei},
-  journal={arXiv preprint arXiv:2306.16269},
-  year={2023}
+  journal={IEEE Transactions on Geoscience and Remote Sensing},
+  year={2024},
+  publisher={IEEE}
 }
 ```
 

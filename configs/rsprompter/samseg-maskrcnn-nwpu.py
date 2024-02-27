@@ -20,8 +20,10 @@ visualizer = dict(
 num_classes = 10
 
 # sam base model
-hf_sam_pretrain_name = "facebook/sam-vit-base"
-hf_sam_pretrain_ckpt_path = "~/.cache/huggingface/hub/models--facebook--sam-vit-base/snapshots/b5fc59950038394bae73f549a55a9b46bc6f3d96/pytorch_model.bin"
+hf_sam_pretrain_name = "work_dirs/sam_cache/sam_vit_base"
+# huggingface model name, e.g. facebook/sam-vit-base
+# or local repo path, e.g. work_dirs/sam_cache/sam_vit_base
+hf_sam_pretrain_ckpt_path = "work_dirs/sam_cache/sam_vit_base/pytorch_model.bin"
 # # sam large model
 # hf_sam_pretrain_name = "facebook/sam-vit-large"
 # hf_sam_pretrain_ckpt_path = "~/.cache//huggingface/hub/models--facebook--sam-vit-large/snapshots/70009d56dac23ebb3265377257158b1d6ed4c802/pytorch_model.bin"
@@ -55,11 +57,11 @@ model = dict(
 dataset_type = 'NWPUInsSegDataset'
 
 #### should be changed align with your code root and data root
-code_root = '/mnt/home/xx/codes/RSPrompter'
-data_root = '/mnt/home/xx/data/NWPU'
+code_root = '/mnt/home/cky/Code/RSPrompter'
+data_root = '/mnt/home/cky/Code/RSPrompter/data/NWPU'
 
 
-batch_size_per_gpu = 4
+batch_size_per_gpu = 2
 num_workers = 8
 persistent_workers = True
 train_dataloader = dict(
